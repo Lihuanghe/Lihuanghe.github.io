@@ -19,12 +19,9 @@
 </head>
 <body ms-controller="testeasyUI">
 	<h3>avalon+ jqueryEasyUI的例子</h3>
-	<button ms-click="loadData">加载新数据</button>
+	<button ms-click="loadData">加载新数据</button><span>下面的tab内容会实时展示最新数据</span>
 	<table ms-widget="datagrid,abcded,$datagridopt"></table>  
-	<div ms-widget="calendar,calendar1,$calendaropt"></div>
-	<ul ms-widget="tree,tree1,$treeopt" ></ul>
-	
-	<div ms-widget="tabs,tabs1,$tabsopt" style="width:500px;height:250px;">
+		<div ms-widget="tabs,tabs1,$tabsopt" style="width:500px;height:250px;">
     <div title="Tab1" >
          asdfasdf
     </div>
@@ -35,6 +32,10 @@
         tab3
     </div>
 </div>
+	<div ms-widget="calendar,calendar1,$calendaropt"></div>
+	<ul ms-widget="tree,tree1,$treeopt" ></ul>
+	
+
 </body>
 <script>
 	require.config({
@@ -93,7 +94,7 @@
     onSelect:function(title){
 		var text = JSON.stringify(avalon.vmodels['abcded'].wrapper.datagrid('getData'));
 		var tab = $(this).tabs('getSelected');
-		avalon.vmodels['tabs1'].wrapper.tabs('update',{tab : tab, options : {title: 'New Title',content:text}});
+		avalon.vmodels['tabs1'].wrapper.tabs('update',{tab : tab, options : {content:text}});
 		
     }}},
 	 $treeopt:{wrapperOptions:{
@@ -150,6 +151,9 @@
 			tmp.push(row);
 		});
 		avalon.vmodels['abcded'].wrapper.datagrid('loadData',tmp);
+		var text = JSON.stringify(avalon.vmodels.abcded.wrapper.datagrid('getData'));
+		var tab = avalon.vmodels.tabs1.wrapper.tabs('getSelected');
+		avalon.vmodels.tabs1.wrapper.tabs('update',{tab : tab, options : {content:text}});
 	 }
 	 });
 
