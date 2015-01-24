@@ -1,0 +1,159 @@
+﻿<html>
+<head>
+        <!-- 加载jquery-easyui -->  
+        <link rel="stylesheet" href="./themes/default/easyui.css">
+		  <link rel="stylesheet" href="./themes/icon.css">
+		
+		<script src="./require.js" ></script>
+		  <style scoped="scoped">
+        .md{
+            height:16px;
+            line-height:16px;
+            background-position:2px center;
+            text-align:right;
+            font-weight:bold;
+            padding:0 2px;
+            color:gray;
+        }
+    </style>
+</head>
+<body ms-controller="testeasyUI">
+	<h3>avalon+ jqueryEasyUI的例子</h3>
+	<button ms-click="loadData">加载新数据</button>
+	<table ms-widget="datagrid,abcded,$datagridopt"></table>  
+	<div ms-widget="calendar,calendar1,$calendaropt"></div>
+	<ul ms-widget="tree,tree1,$treeopt" ></ul>
+	
+	<div ms-widget="tabs,tabs1,$tabsopt" style="width:500px;height:250px;">
+    <div title="Tab1" >
+         asdfasdf
+    </div>
+    <div title="Tab2" >
+        tab2
+    </div>
+    <div title="Tab3" >
+        tab3
+    </div>
+</div>
+</body>
+<script>
+	require.config({
+		paths : {
+			avalon :'./avalon',
+			jquery :'./jquery.min',
+			easyui :'./jquery.easyui.min',
+			avalonUIwrapper : './avalonUIwrapper'
+		}
+	});
+	
+	 require(['avalon','avalonUIwrapper'],function(avalon, wrapper){
+	 //装配wrapper
+	 wrapper.wrapper('datagrid', function(vm){
+		vm.wrapper.datagrid(vm.wrapperOptions);
+	 });
+	 wrapper.wrapper('calendar', function(vm){
+		vm.wrapper.calendar(vm.wrapperOptions);
+	 });
+	 wrapper.wrapper('tree', function(vm){
+		vm.wrapper.tree(vm.wrapperOptions);
+	 });
+	 wrapper.wrapper('tabs', function(vm){
+		vm.wrapper.tabs(vm.wrapperOptions);
+	 });
+	 	var d1 = Math.floor((Math.random()*30)+1);
+        var d2 = Math.floor((Math.random()*30)+1);
+        function formatDay(date){
+            var m = date.getMonth()+1;
+            var d = date.getDate();
+            var opts = $(this).calendar('options');
+            if (opts.month == m && d == d1){
+                return '<div class="icon-ok md">' + d + '</div>';
+            } else if (opts.month == m && d == d2){
+                return '<div class="icon-search md">' + d + '</div>';
+            }
+            return d;
+        }
+	 
+	 //定义Controller ,
+	 var testctrl =  avalon.define({
+	 $id : 'testeasyUI',
+	 aaa :{},
+	 $tabsopt:{wrapperOptions:{border:true,
+	 tools:[{
+		iconCls:'icon-add',
+		handler:function(){
+			alert('add')
+		}
+	},{
+		iconCls:'icon-save',
+		handler:function(){
+			alert('save')
+		}
+	}],
+    onSelect:function(title){
+		var text = JSON.stringify(avalon.vmodels['abcded'].wrapper.datagrid('getData'));
+		var tab = $(this).tabs('getSelected');
+		avalon.vmodels['tabs1'].wrapper.tabs('update',{tab : tab, options : {title: 'New Title',content:text}});
+		
+    }}},
+	 $treeopt:{wrapperOptions:{
+	 data: [{
+		text: 'Item1',
+		state: 'closed',
+		children: [{
+			text: 'Item11'
+		},{
+			text: 'Item12'
+		}]
+	},{
+		text: 'Item2'
+	}]
+	}},
+	 $calendaropt :{wrapperOptions:{formatter:formatDay,current:new Date(),width:300}},
+	 $datagridopt : {
+		 wrapperOptions:{
+					width: 'auto',  
+					height:300,               
+					striped: true,  
+					singleSelect : true,  
+					//queryParams:{},  
+					loadMsg:'数据加载中请稍后……',  
+					pagination: true,  
+					rownumbers: true,     
+					columns:[[  
+						{field:'adviceid',title: '来文号',align: 'center',width: 100},  
+						{field:'consulter',title: '案由',align: 'center',width: 100,  
+							//添加超级链，并将来文号作为参数传入  
+							formatter:function(val,rec){  
+								//alert(rec.adviceid);  
+								return "<a href='jsp/proposal/psconsultview.jsp?id="+rec.adviceid+"'>"+val+"</a>";  
+						   }  
+						},  
+						{field:'content',title: '状态',align: 'center',width: 100},  
+						{field:'replynumber',title: '回复数',align: 'center',width:100}                                                          
+					]],
+					data: [
+						{adviceid:'value11', consulter:'value12',content:'value3',replynumber:'value4'},{adviceid:'value11', consulter:'value12',content:'value3',replynumber:'value4'},
+						{adviceid:'value11', consulter:'value12',content:'value3',replynumber:'value4'},{adviceid:'value11', consulter:'value12',content:'value3',replynumber:'value4'},
+						{adviceid:'value11', consulter:'value12',content:'value3',replynumber:'value4'},{adviceid:'value11', consulter:'value12',content:'value3',replynumber:'value4'}
+					]
+				}
+	 },
+	 loadData:function()
+	 {
+		tmp = [];
+		avalon.each([1,2,3,4,5,6,7,8,9,0,10],function(index,item){
+			row = {adviceid:'adviceid-'+Math.ceil(Math.random()*1000),
+			consulter:'consulter-'+Math.ceil(Math.random()*1000),
+			content:'content-'+Math.ceil(Math.random()*1000),
+			replynumber:'replynumber-'+Math.ceil(Math.random()*1000)};
+			tmp.push(row);
+		});
+		avalon.vmodels['abcded'].wrapper.datagrid('loadData',tmp);
+	 }
+	 });
+
+	 avalon.scan();
+});
+</script>
+</html>
