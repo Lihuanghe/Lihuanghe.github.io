@@ -7,7 +7,7 @@ auto: true
 pygments: true
 markdown: redcarpet
 redcarpet:
-    extensions: ["fenced_code_blocks", "autolink", "tables", "strikethrough"]
+    extensions: ["no_intra_emphasis","fenced_code_blocks", "autolink", "tables", "strikethrough", "with_toc_data","superscript"]
 
 # Themes are encouraged to use these universal variables 
 # so be sure to set them if your theme uses them.
@@ -81,9 +81,9 @@ JB :
   # Set 'provider' to false to turn commenting off globally.
   #
   comments :
-    provider : false
-    disqus :
-      short_name : jekyllbootstrap
+    provider : disqus
+    disqus : 
+      short_name : Lihuanghe
     livefyre :
       site_id : 123
     intensedebate :

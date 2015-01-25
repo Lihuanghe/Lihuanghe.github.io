@@ -12,6 +12,16 @@ html, body {
   text-align: center; /* center align it with the container */
 }
 
+     table
+        {
+            border: none;
+        }
+        th, td
+        {
+            border: dashed  #000 1px;
+        }
+
+
 /* Site slogan */
 .slogan {
   padding: 10px 0 11px;
