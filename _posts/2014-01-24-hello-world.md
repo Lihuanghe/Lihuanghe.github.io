@@ -4,6 +4,8 @@ title: "第一个jekyll Blog:做markdown语法练习"
 description: ""
 category: 
 tags: []
+comments: true
+
 ---
 {% include JB/setup %}
 这是大标题
@@ -95,3 +97,17 @@ return {wrapper:wrapper};
 
   
 _这是强调内容:用_包起来_
+
+
+表格
+
+| Tables        | Are           | Cool  |
+| ------------- |:-------------:| -----:|
+| col 3 is      | right-aligned | $1600 |
+| col 2 is      | centered      |   $12 |
+| zebra stripes | are neat      |    $1 |
+<br/>
+
+| left-align  |   central-align  |   right-align     |
+|:------------|:----------------:|------------------:|
+| left-align  |   central-align  |   right-align     |
