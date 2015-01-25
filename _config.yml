@@ -83,7 +83,7 @@ JB :
   comments :
     provider : disqus
     disqus : 
-      short_name : Lihuanghe
+      short_name : lihuanghe
     livefyre :
       site_id : 123
     intensedebate :
