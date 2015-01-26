@@ -58,7 +58,7 @@ return {wrapper:wrapper};
 
 链接内是例子：
 
- [avalon+ jqueryEasyUI的例子](/avalon-easyui-demo/easyUIwrapper.html)
- [avalon+ jqueryUI的例子](/avalon-easyui-demo/jqueryUIwrapper.html)
+1. [avalon+ jqueryEasyUI的例子](/avalon-easyui-demo/easyUIwrapper.html)
+2. [avalon+ jqueryUI的例子](/avalon-easyui-demo/jqueryUIwrapper.html)
 
 
