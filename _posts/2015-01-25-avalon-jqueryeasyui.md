@@ -25,7 +25,7 @@ var wrapper = function(componentName,init){
                         //调用使用wrapper来引用dom对象
                         vm.wrapper = $(element);
                         //调用初始化方法
-                        init(vm);
+                        init(vm.$model);
                         callback();
                    }
                    //清空构成UI的所有节点，最好定义此方法，让框架对它进行自动化销毁
@@ -56,6 +56,9 @@ return {wrapper:wrapper};
 	});
 ```
 
-链接内是例子： [avalon+ jqueryEasyUI的例子](/avalon-easyui-demo/wrapper.html)
+链接内是例子：
+
+ [avalon+ jqueryEasyUI的例子](/avalon-easyui-demo/easyUIwrapper.html)
+ [avalon+ jqueryUI的例子](/avalon-easyui-demo/jqueryUIwrapper.html)
 
 
