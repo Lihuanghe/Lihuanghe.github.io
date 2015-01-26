@@ -1,0 +1,3 @@
+[submodule "avalon-easyui-demo"]
+	path = avalon-easyui-demo
+	url = https://github.com/Lihuanghe/avalon-easyui-demo.git
