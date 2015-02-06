@@ -11,6 +11,7 @@ tags: []
 
 1. private ,protected,public的访问权限？
 2. try catch finally的使用？
+
 ```java 
 	public Integer a()
 	{
@@ -24,6 +25,7 @@ tags: []
 		}
 	}
 ```
+
 3. 如何重写/重载一个方法？
 4. java反射有哪些适合的全用场景，或者说有哪些用法
 5. java代理的使用场景
