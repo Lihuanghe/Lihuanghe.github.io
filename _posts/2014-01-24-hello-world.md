@@ -98,6 +98,7 @@ return {wrapper:wrapper};
   
 _这是强调内容:用_包起来_
 
+[用pdf2HtmlEx转成简历](/resume.html)
 
 表格
 
