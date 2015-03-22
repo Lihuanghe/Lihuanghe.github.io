@@ -10,6 +10,8 @@ tags: [sql ]
 ## 一个简单的sql参数替换引擎，支持动态参数名，动态表名.
 ## 主要用在自动报表工具（引擎）上。可以支持sql设置参数
 
+[代码地址](https://github.com/Lihuanghe/SqlTemplateParser)
+
 # 用法: 
 
 
