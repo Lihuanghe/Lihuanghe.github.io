@@ -1,0 +1,19 @@
+//abaca
+{
+    "busiCode": null,
+    "opId": null,
+    "phone": null,
+    "returnCode": "0",
+    "returnMessage": null,
+    "beans": [
+        {
+            "btnId":"J_next",
+            "mo":"1"
+        },
+        {
+            "btnId":"J_chooseclass",
+            "mo":"0"
+        }
+    ],
+    "object": null
+}

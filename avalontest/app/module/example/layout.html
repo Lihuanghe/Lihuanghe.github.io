@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta name="renderer" content="webkit" />
+<meta http-equiv="X-UA-Compatible" content="IE=8,chrome=1" />
+<link rel="shortcut icon" href="../../../favicon.ico" type="image/x-icon" />
+<title>布局</title>
+<link rel="stylesheet" href="../../assets/css/reset.css">
+<link rel="stylesheet" href="../../assets/css/common.css">
+<link rel="stylesheet" href="../../assets/css/layout.css">
+</head>
+<body>
+	<div class="ui-header">
+		<a href="javascrpt:;" class="ui-logo fn-left">
+		</a>
+		<ul class="ui-header-nav">
+			<li><a href="javascript:;">个人中心</a></li>
+			<li><a href="javascript:;">切换角色</a></li>
+			<li><a href="javascript:;">退出</a></li>
+		</ul>
+	</div>
+	<div class="ui-content">
+		<div  class="ui-left-wrap">
+			<ul class="ui-nav">
+				<li>
+					<div class="ui-nav-first">
+						<span class="label">首页</span>
+						<span class="arrow">∧</span>
+					</div>
+		  			<dl class="ui-nav-second">
+						<dd><a href="javascript:;">通话记录查询</a></dd>
+						<dd><a href="javascript:;">计算器</a></dd>
+						<dd><a href="javascript:;">记事本</a></dd>
+		  			</dl>
+				</li>
+				<li>
+					<div class="ui-nav-first">
+						<span class="label">任务管理</span>
+						<span class="arrow">∨</span>
+					</div>
+		  			<dl class="ui-nav-second">
+						<dt><a href="javascript:;"><i>+</i> 我的任务</a></dt>
+						<dd><a href="javascript:;">活动任务</a></dd>
+						<dd><a href="javascript:;">外呼任务</a></dd>
+						<dd><a href="javascript:;">任务草稿</a></dd>
+						<dd><a href="javascript:;">养卡黑卡活动客户</a></dd>
+		  			</dl>
+		  			<dl class="ui-nav-second">
+						<dt><a href="javascript:;"><i>+</i> 下单量</a></dt>
+						<dd><a href="javascript:;">今日下单量</a></dd>
+		  			</dl>
+		  			<dl class="ui-nav-second">
+						<dt><a href="javascript:;"><i>+</i> 问卷管理</a></dt>
+						<dd><a href="javascript:;">问卷列表</a></dd>
+						<dd><a href="javascript:;">问题列表</a></dd>
+		  			</dl>
+				</li>
+				<li>
+					<div class="ui-nav-first">
+						<span class="label">数据报表</span>
+						<span class="arrow">∨</span>
+					</div>
+		  			<dl class="ui-nav-second">
+						<dt><a href="javascript:;"><i>+</i> 运营报表</a></dt>
+						<dd><a href="javascript:;">运营报表(整体)</a></dd>
+						<dd><a href="javascript:;">运营报表(分类型)</a></dd>
+		  			</dl>
+		  			<dl class="ui-nav-second">
+						<dt><a href="javascript:;"><i>+</i> 项目报表</a></dt>
+						<dd><a href="javascript:;">项目成效报表</a></dd>
+						<dd><a href="javascript:;">项目进度报表</a></dd>
+						<dd><a href="javascript:;">员工通话时长报表</a></dd>
+						<dd><a href="javascript:;">结果代码表</a></dd>
+						<dd><a href="javascript:;">问卷明细报表</a></dd>
+		  			</dl>
+				</li>
+				<li>
+					<div class="ui-nav-first" style="border-bottom:none;">
+						<span class="label">订单管理</span>
+						<span class="arrow">∨</span>
+					</div>
+		  			<dl class="ui-nav-second">
+						<dt><a href="javascript:;"><i>+</i> 订单管理</a></dt>
+						<dd><a href="javascript:;">订单预处理</a></dd>
+						<dd><a href="javascript:;">订单处理</a></dd>
+						<dd><a href="javascript:;">全部订单查询</a></dd>
+		  			</dl>
+		  			<dl class="ui-nav-second">
+						<dt><a href="javascript:;"><i>+</i> 订单查询</a></dt>
+						<dd><a href="javascript:;">全部订单查询</a></dd>
+		  			</dl>
+				</li>
+			</ul>
+		</div>
+		<div class="ui-right-layout">
+			<div class="ui-right-wrap fn-clear">
+		        <div class="ui-box">
+		        </div>
+		        <div class="ui-box">
+		        </div>
+		        <div class="ui-box">
+		        </div>
+		        <div class="ui-box">
+		        </div>
+			</div>
+		</div>
+	</div>
+<script src="../../assets/lib/jquery/1.9.0/jquery-1.9.0-min.js"></script>
+<script type="text/javascript">
+$(function(){
+	//一级菜单折叠
+	$(".ui-nav").on('click','.ui-nav-first',function(){
+		var _this = $(this);
+		if (_this.hasClass('open')) {
+			if (_this.siblings('dl').find('dt').length) {
+				_this.removeClass('open').find('.arrow').html('∧').end().siblings('dl').slideToggle('fast');
+			}else{
+				_this.removeClass('open').find('.arrow').html('∧').end().siblings('dl').show().find('dd').slideToggle('fast');
+			}
+		}else{
+			if (_this.siblings('dl').find('dt').length) {
+				_this.addClass('open').find('.arrow').html('∨').end().siblings('dl').slideToggle('fast');
+			}else{
+			avalon.log(_this.addClass('open').find('.arrow').html('∨').end().siblings('dl'));
+				_this.addClass('open').find('.arrow').html('∨').end().siblings('dl').show().find('dd').slideToggle('fast');
+			}
+		}
+	});
+
+
+	//二级菜单折叠
+	$('.ui-nav-second').on('click','dt',function(){
+		var _this = $(this);
+		if (_this.hasClass('open')) {
+			_this.removeClass('open').find('i').html('+').end().siblings('dd').slideToggle('fast');
+		}else{
+			_this.addClass('open').find('i').html('-&nbsp;').end().siblings('dd').slideToggle('fast');
+		}
+	})
+});
+</script>
+</body>
+</html>

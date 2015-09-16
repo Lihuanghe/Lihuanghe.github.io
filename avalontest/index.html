@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta name="renderer" content="webkit" />
+<meta http-equiv="X-UA-Compatible" content="IE=8,chrome=1" />
+<link rel="shortcut icon" href="app/../favicon.ico" type="image/x-icon" />
+<title>智能短信配置管理平台</title>
+<link rel="stylesheet" href="app/assets/css/reset.css">
+<link rel="stylesheet" href="app/assets/css/common.css">
+<link rel="stylesheet" href="app/assets/css/layout.css">
+<link rel="stylesheet" href="app/assets/lib/easyui/easyui.css">
+<link rel="stylesheet" href="app/assets/lib/easyui/icon.css">
+<script src="app/assets/lib/require/require.js"></script>
+</head>
+<body class="ms-controller" ms-controller="content-main">
+
+	<div ms-if="initcomplete && !isLogin">
+		<div style="color:red" >{{errDesc}}</div>
+		<label>用户名:</label> <input type="text" ms-duplex="userName" />
+		<br/>
+		<label>密码:</label> <input type="password" ms-duplex="passwd" /><br/>
+		<input type="submit" ms-on-click="login" />
+	</div>
+
+	<div ms-if="isLogin">
+	<div class="ui-header ms-controller"  ms-controller="header">
+	    <a href="javascrpt:;" class="ui-logo fn-left">
+		</a>
+		<ul class="ui-header-nav">
+		<li ms-repeat="menu"><a href="javascript:;" ms-on-click="dosomething(el)">{{el}}</a></li>
+		</ul>
+	</div>
+	<div class="ui-content " >
+		<div  class="ui-left-wrap ms-controller" ms-controller="content-nav">
+			<ul class="ui-nav" ms-include-src="content" data-include-rendered='render'>
+			</ul>
+		</div>
+		<div class="ui-right-layout  ms-controller" ms-controller="menuView">
+			<div class="ui-right-wrap fn-clear"   >
+				<div ms-include-src="contentSrc" data-include-rendered='render' data-include-replace="false"> test </div>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+</body>
+<script type="text/javascript">
+	require.config({
+		paths : {
+			text : 'app/assets/lib/text',
+			css : 'app/assets/lib/css',
+			avalon : 'app/assets/lib/avalon/avalon',
+			jquery : 'app/assets/lib/jquery/1.9.0/jquery-1.9.0-min',
+			base64 : 'app/assets/lib/base64/jquery.base64',
+			mmRouter: 'app/assets/lib/mmRouter-0.5/mmRouter',
+			mmHistory:'app/assets/lib/mmRouter-0.5/mmHistory',
+			config : 'app/module/config/config',
+			wrapper : 'app/assets/lib/avalonJQcomponent',
+			easyui : 'app/assets/lib//easyui/jquery.easyui.min'
+		},
+		shim:{
+		},
+		baseUrl : "./"
+		//,urlArgs: "bust=" +  (new Date()).getTime()
+	});
+	require([ "avalon","jquery" , "app/js/main.js"], function(avalon,main) {
+		avalon.scan();
+		avalon.log('done!');
+	});
+</script>
+</html>

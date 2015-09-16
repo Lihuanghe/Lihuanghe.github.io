@@ -1,0 +1,12 @@
+
+﻿				<li ms-repeat-first="menuData" >
+					<div class="ui-nav-first" ms-on-click="firstMenu">
+						<span class="label">{{first.name}}</span>
+						<span class="arrow">∧</span>
+					</div>
+		  			<dl class="ui-nav-second" ms-if="first.subMenu !==undefined && first.subMenu.length>0" ms-repeat-second="first.subMenu">
+						<dt ms-if="second.subMenu!==undefined && second.subMenu.length>0" ms-on-click="secondMenu"><a href="javascript:;"><i>+</i> {{second.name}}</a></dt>
+						<dd ms-if="!(second.subMenu!==undefined && second.subMenu.length>0)" ><a ms-attr-href="#!/{{second.id}}">{{second.name}}</a></dd>
+						<dd ms-if="second.subMenu!==undefined && second.subMenu.length>0" ms-repeat-third="second.subMenu"><a ms-attr-href="#!/{{second.id}}/{{third.id}}">{{third.name}}</a></dd>
+		  			</dl>
+				</li>
