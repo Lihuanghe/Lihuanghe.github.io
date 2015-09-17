@@ -8,7 +8,7 @@ define(['avalon','jquery'],function(avalon,jquery){
 				wrapperOptions:{},
 			    $replace: true,
 			    $init:function(vm,el){
-			    	
+			    	 avalon.log('init :' + vm.$id )
 			    },
 			    $ready: function (vm,el) {
 			       vm.element = el;
@@ -16,6 +16,7 @@ define(['avalon','jquery'],function(avalon,jquery){
 			    },
 			    $dispose :function(vm,el){
 			    	 el.innerHTML =  ""
+			    	 avalon.log('dispose :' + vm.$id );
 			    },
 			    $template: element
 			});
