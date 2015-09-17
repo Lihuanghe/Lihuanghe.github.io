@@ -23,7 +23,7 @@
 		<input type="submit" ms-on-click="login" />
 	</div>
 
-	<div ms-if="isLogin">
+	<div ms-if=" initcomplete && isLogin">
 	<div class="ui-header ms-controller"  ms-controller="header">
 	    <a href="javascrpt:;" class="ui-logo fn-left">
 		</a>
@@ -38,7 +38,7 @@
 		</div>
 		<div class="ui-right-layout  ms-controller" ms-controller="menuView">
 			<div class="ui-right-wrap fn-clear"   >
-				<div ms-include-src="contentSrc" data-include-rendered='render' data-include-replace="false" data-include-cache="true"> test </div>
+				<div ms-include-src="contentSrc" data-include-rendered='render' data-include-replace="false" data-include-cache="false"> test </div>
 			</div>
 		</div>
 	</div>
@@ -52,13 +52,16 @@
 			text : 'app/assets/lib/text',
 			css : 'app/assets/lib/css',
 			avalon : 'app/assets/lib/avalon/avalon',
-			jquery : 'app/assets/lib/jquery/1.9.0/jquery-1.9.0-min',
+			jquery : 'app/assets/lib/jquery/jquery-1.11.3',
+			//jquery : 'app/assets/lib/jquery/1.9.0/jquery-1.9.0-min',
 			base64 : 'app/assets/lib/base64/jquery.base64',
 			mmRouter: 'app/assets/lib/mmRouter-0.5/mmRouter',
 			mmHistory:'app/assets/lib/mmRouter-0.5/mmHistory',
 			config : 'app/module/config/config',
 			wrapper : 'app/assets/lib/avalonJQcomponent',
-			easyui : 'app/assets/lib//easyui/jquery.easyui.min'
+			easyui : 'app/assets/lib//easyui/jquery.easyui.min',
+			loading :'app/assets/lib/jquery/loading/loading-overlay.min',
+			map :'app/assets/lib/map'
 		},
 		shim:{
 		},

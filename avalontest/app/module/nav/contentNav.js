@@ -1,4 +1,4 @@
-﻿define(['avalon','jquery',"mmRouter",'config'],function(avalon,jquery,mmRoute,config){
+﻿define(['avalon','jquery',"mmRouter",'config',"app/module/menuView/menuView.js"],function(avalon,jquery,mmRoute,config){
 
  var model = avalon.define({
                 $id: "content-nav",
@@ -94,10 +94,8 @@
             });
 			//model.menuData=[{id:1,name:"一级",subMenu:[{id:11,name:"二级",subMenu:[{id:111,name:"三级"}]}]},{id:2,name:"一级（二）"},{id:3,name:"一级(三)",subMenu:[{id:31,name:"二级"}]}];
 			//加载菜单
-			avalon.log($);
+		
 			$.get(config.contentNavURL,function(data){
-				avalon.log(data);
-
 				model.menuData = data.menuData;
 			});
 

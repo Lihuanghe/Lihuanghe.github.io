@@ -13,7 +13,7 @@ define(["app/module/user/user.js"],function(user){
 					 user.login(u,p,function(data){
 					 	if(data.returnCode ==='0'){
 					 		//加载页面
-					 		require([ "app/module/nav/headNav.js","app/module/nav/contentNav.js","app/module/menuView/menuView.js"], function(head,nav,view) {
+					 		require([ "app/module/nav/headNav.js","app/module/menuView/menuView.js","app/module/nav/contentNav.js"], function(head,nav,view) {
 
 					 			model.isLogin = true;
 					 			model.initcomplete = true;

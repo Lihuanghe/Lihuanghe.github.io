@@ -2,23 +2,27 @@ define(['avalon','jquery'],function(avalon,jquery){
 
 	avalon.library("jq");
 	//把jquery的插件包装成一个avalon的组件
-	var wrapper = function(name,element,init){
+	var wrapper = function(name,template,init,destroy){
 
 			avalon.component("jq:"+name, {
 				wrapperOptions:{},
 			    $replace: true,
+			    $DOMelement:{},
 			    $init:function(vm,el){
 			    	 avalon.log('init :' + vm.$id )
 			    },
 			    $ready: function (vm,el) {
-			       vm.element = el;
-			       init(vm,el);
+			       vm.$DOMelement = el;
+			       if(init)
+			       		init(vm,el);
 			    },
 			    $dispose :function(vm,el){
 			    	 el.innerHTML =  ""
-			    	 avalon.log('dispose :' + vm.$id );
+			    	 if(destroy)
+			    	 	destroy(vm.el);
+			    	 avalon.log('dispose :' + vm.$id )
 			    },
-			    $template: element
+			    $template: template
 			});
 	}
 	return {wrap:wrapper};
