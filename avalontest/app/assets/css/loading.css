@@ -1,3 +1,28 @@
+@font-face {
+  font-family: "demo";
+  src: url('../fonts/icons.woff') format("woff");
+}
+
+@keyframes loadingStart {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+@keyframes loading {
+  0% {
+    transform: rotate(0deg);
+  }
+  50% {
+    transform: rotate(180deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
 .loading {
   position: relative;
   pointer-events: none;
@@ -5,7 +30,7 @@
 
 .loading .loading-overlay {
   position: absolute;
-  top: 0;
+  top: 80px;
   bottom: 0;
   left: 0;
   right: 0;

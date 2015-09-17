@@ -38,7 +38,7 @@ define(['avalon','jquery','wrapper','config','loading','css!app/assets/css/loadi
 						//加载新的View
 						var mod = config.pathMap.get(path);
 						if(mod===undefined){
-		               		avalon.log('Error ViewModule have not loaded . you should add path to index.html .path =  ' + path )
+		               		avalon.log('Error ViewModule have not loaded . you should load module.path into config.pathMap in config.js .path =  ' + path )
 		               		model.$updateView(errormodule); 
 	               		}else{
 	               			model.$updateView(mod); 
