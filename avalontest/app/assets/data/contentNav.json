@@ -8,15 +8,15 @@
             "subMenu": [
                 {
                     "id": 31,
-                    "name": "通话记录查询"
+                    "name": "纯HTML视图"
                 },
                 {
                     "id": 32,
-                    "name": "计算器"
+                    "name": "使用easyui的datagrid视图"
                 },
                 {
                     "id": 33,
-                    "name": "记事本"
+                    "name": "ava组件封装视图"
                 }
             ]
         },
