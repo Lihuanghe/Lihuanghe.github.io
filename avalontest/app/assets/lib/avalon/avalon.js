@@ -1537,6 +1537,7 @@ if (!canHideOwn) {
             buffer.push("\tPublic [" + 'hasOwnProperty' + "]")
             buffer.push("End Class")
             var body = buffer.join("\r\n")
+            
             var className = VBClassPool[body]
             if (!className) {
                 className = generateID("VBClass")
@@ -3474,6 +3475,7 @@ Buffer.prototype = {
 
 var buffer = new Buffer()
 var componentQueue = []
+var widgetList = []
 var componentHooks = {
     $construct: function () {
         return avalon.mix.apply(null, arguments)
@@ -4674,10 +4676,12 @@ avalon.directive("if", {
                         console.log("111")
                     }
                     if (elem.querySelectorAll) {
+                        try{
                         avalon.each(elem.querySelectorAll("_required"), function (el) {
                            elem.required = true
                            //  elem.setAttribute("required","required")
-                        })
+                        })}
+                        catch(e){}
                     }
                     alway()
                 }, after)
@@ -4692,10 +4696,12 @@ avalon.directive("if", {
                     elem.setAttribute("_required", "true")
                 }
                 if (elem.querySelectorAll) {
+                    try{
                     avalon.each(elem.querySelectorAll(":required"), function (el) {
                         elem.required = false
                         el.setAttribute("_required", "true")
                     })
+                }catch(e){}
                 }
                 var node = binding.element = DOC.createComment("ms-if"),
                         pos = elem.nextSibling
