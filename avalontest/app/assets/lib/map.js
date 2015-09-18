@@ -148,8 +148,6 @@ define(function(){
         return count;
     };
 }
-var ins ;
-if(ins===undefined)
-	ins = new Map();
-return ins;
+
+return {newMap : function(){return new Map()}};
 });

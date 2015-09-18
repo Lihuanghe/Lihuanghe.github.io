@@ -88,6 +88,7 @@
 						avalon.history.start({
 							basepath: "/"
 						});
+						avalon.log('info init Router OK')
 					}
 				}
 				
