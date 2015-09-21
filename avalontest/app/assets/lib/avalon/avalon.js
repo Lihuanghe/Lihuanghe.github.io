@@ -1432,13 +1432,11 @@ function toJson(val) {
     } else if (xtype === "object") {
         var obj = {}
         for (i in val) {
-            try{
+          
             if (val.hasOwnProperty(i)) {
                 obj[i] = toJson(val[i])
             }
-        }catch(e){
-            console.log(val)
-        }
+       
 
         }
         return obj
