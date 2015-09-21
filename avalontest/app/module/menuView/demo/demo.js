@@ -1,4 +1,4 @@
-define(['wrapper','config','easyui'],function(wrapper,config){
+define(['config','easyui','text!app/module/menuView/demo/demo.html'],function(config,easyui,viewHTML){
 	var wrapperOptions = {
 								width: 'auto',  
 								height:300,               
@@ -27,13 +27,10 @@ define(['wrapper','config','easyui'],function(wrapper,config){
 								]
 						};
 
-	wrapper.wrap('datagrid', "<table></table>",function(vm,el){
-		$(el).datagrid(wrapperOptions);
- 	});
-
 	var model = avalon.define({
                 $id: "demoView",
                 path : "",
+                wrapperOptions:{"wrapperOptions":wrapperOptions},
                 loadData:function(){
 					tmp = [];
 					avalon.each([1,2,3,4,5,6,7,8,9,0,10],function(index,item){
@@ -49,7 +46,7 @@ define(['wrapper','config','easyui'],function(wrapper,config){
 
 // 定义视图模块
 	var viewmod =  {
-	    viewtSrc: 'app/module/menuView/demo/demo.html',
+	    viewtSrc:viewHTML ,
 		viewInit:function(){},   //模块view加载完成后的回调方法，在刷新（F5）时可能调用两次
 		viewDestroy:function(){} //切换菜单时销毁原来的view
 	 };

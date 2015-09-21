@@ -11,6 +11,7 @@
 <link rel="stylesheet" href="app/assets/css/layout.css">
 <link rel="stylesheet" href="app/assets/lib/easyui/easyui.css">
 <link rel="stylesheet" href="app/assets/lib/easyui/icon.css">
+<script src="app/requireconfig.js"></script>
 <script src="app/assets/lib/require/require.js"></script>
 </head>
 <body class="ms-controller" ms-controller="content-main">
@@ -33,12 +34,12 @@
 	</div>
 	<div class="ui-content " >
 		<div  class="ui-left-wrap ms-controller" ms-controller="content-nav">
-			<ul class="ui-nav" ms-include-src="content" data-include-rendered='render'>
+			<ul class="ui-nav">{{content|html}}
 			</ul>
 		</div>
 		<div class="ui-right-layout  ms-controller" ms-controller="menuView">
 			<div class="ui-right-wrap fn-clear"   >
-				<div ms-include-src="contentSrc" data-include-rendered='render' data-include-replace="false" data-include-cache="false"> test </div>
+				<div > {{contentSrc|html}} </div>
 			</div>
 		</div>
 	</div>
@@ -47,6 +48,15 @@
 
 </body>
 <script type="text/javascript">
+	var buildurlArgs = function(config, moduleName, url){
+		var urlArgs = requireConfig.get(moduleName);
+		//avalon.log('moduleName:'+moduleName +'\turl:'+url);
+		if(urlArgs===undefined)
+			return "";
+
+
+		return "bust=" + urlArgs;
+	}
 	require.config({
 		paths : {
 			text : 'app/assets/lib/text',
@@ -57,18 +67,19 @@
 			base64 : 'app/assets/lib/base64/jquery.base64',
 			mmRouter: 'app/assets/lib/mmRouter-0.5/mmRouter',
 			mmHistory:'app/assets/lib/mmRouter-0.5/mmHistory',
-			config : 'app/module/config/config',
 			wrapper : 'app/assets/lib/avalonJQcomponent',
-			easyui : 'app/assets/lib//easyui/jquery.easyui.min',
+			easyui : 'app/assets/lib/easyui/jquery.easyui.min',
 			loading :'app/assets/lib/jquery/loading/loading-overlay.min',
-			map :'app/assets/lib/map'
+			map :'app/assets/lib/map',
+			config : 'app/module/config/config'
 		},
+		waitSeconds:0,
 		shim:{
 		},
-		baseUrl : "./"
-		//,urlArgs: "bust=" +  (new Date()).getTime()
+		baseUrl : "" ,
+		urlArgs: buildurlArgs
 	});
-	require([ "avalon","jquery" , "app/js/main.js"], function(avalon,main) {
+	require([ "avalon","jquery" , "app/js/main.js"], function(avalon,jquery,main) {
 		avalon.scan();
 		avalon.log('done!');
 	});

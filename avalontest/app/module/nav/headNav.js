@@ -7,7 +7,6 @@ define(['avalon',"app/module/user/user.js"],function(avalon,user){
 					user.logout(function(){
 
 						avalon.vmodels['content-main'].isLogin = false;
-
 					});
 				}
             });

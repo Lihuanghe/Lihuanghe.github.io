@@ -1,4 +1,20 @@
-define(["app/module/user/user.js"],function(user){
+define(["app/module/user/user.js",'wrapper'],function(user,wrapper){
+
+/*
+ * 加载jqery包装生成的组件
+ */
+	wrapper.wrap('datagrid', "<table></table>",function(vm,el){
+		$(el).datagrid(vm.$model.wrapperOptions);
+ 	});
+
+	wrapper.wrap('loading', "<div></div>",function(vm,el){
+		var target = $(el);
+		if(target.hasClass('loading'))	return;
+		
+		$(el).loadingOverlay();
+ 	});
+
+//定义主vm
  var model = avalon.define({
                 $id: "content-main",
                 initcomplete:false, //是否初始化完成

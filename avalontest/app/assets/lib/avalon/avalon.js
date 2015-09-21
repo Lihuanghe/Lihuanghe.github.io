@@ -5,7 +5,7 @@
  http://weibo.com/jslouvre/
  
  Released under the MIT license
- avalon.shim.js 1.5.1 built in 2015.9.14
+ avalon.shim.js 1.5.2 built in 2015.9.18
  support IE6+ and other browsers
  ==================================================*/
 (function(global, factory) {
@@ -74,6 +74,7 @@ var class2type = {}
 "Boolean Number String Function Array Date RegExp Object Error".replace(rword, function (name) {
     class2type["[object " + name + "]"] = name.toLowerCase()
 })
+
 
 
 function noop() {
@@ -292,7 +293,7 @@ function _number(a, len) { //用于模拟slice, splice的效果
 avalon.mix({
     rword: rword,
     subscribers: subscribers,
-    version: 1.51,
+    version: 1.52,
     ui: {},
     log: log,
     slice: W3C ? function (nodes, start, end) {
@@ -1431,9 +1432,14 @@ function toJson(val) {
     } else if (xtype === "object") {
         var obj = {}
         for (i in val) {
+            try{
             if (val.hasOwnProperty(i)) {
                 obj[i] = toJson(val[i])
             }
+        }catch(e){
+            console.log(val)
+        }
+
         }
         return obj
     }
@@ -1537,7 +1543,6 @@ if (!canHideOwn) {
             buffer.push("\tPublic [" + 'hasOwnProperty' + "]")
             buffer.push("End Class")
             var body = buffer.join("\r\n")
-            
             var className = VBClassPool[body]
             if (!className) {
                 className = generateID("VBClass")
@@ -2525,8 +2530,9 @@ function showHidden(node, array) {
     avalon.fn[method] = function (value) { //会忽视其display
         var node = this[0]
         if (arguments.length === 0) {
-            if (node.setTimeout) { //取得窗口尺寸,IE9后可以用node.innerWidth /innerHeight代替
+            if (node.setTimeout) { //取得窗口尺寸
                 return node["inner" + name] || node.document.documentElement[clientProp]
+                 || node.document.body[clientProp] //IE6下前两个分别为undefined,0
             }
             if (node.nodeType === 9) { //取得页面尺寸
                 var doc = node.documentElement
@@ -4670,18 +4676,15 @@ avalon.directive("if", {
                         return
                     elem.parentNode.replaceChild(keep, elem)
                     elem = binding.element = keep //这时可能为null
-                    if (keep.getAttribute("_required")) {
-                      elem.required = true
-                      //  elem.setAttribute("required","required")
-                        console.log("111")
+                    if (keep.getAttribute("_required")) {//#1044
+                        elem.required = true
+                        elem.removeAttribute("_required")
                     }
                     if (elem.querySelectorAll) {
-                        try{
-                        avalon.each(elem.querySelectorAll("_required"), function (el) {
-                           elem.required = true
-                           //  elem.setAttribute("required","required")
-                        })}
-                        catch(e){}
+                        avalon.each(elem.querySelectorAll("[_required=true]"), function (el) {
+                            el.required = true
+                            el.removeAttribute("_required")
+                        })
                     }
                     alway()
                 }, after)
@@ -4695,14 +4698,14 @@ avalon.directive("if", {
                     elem.required = false
                     elem.setAttribute("_required", "true")
                 }
-                if (elem.querySelectorAll) {
-                    try{
+                try {// 如果不支持querySelectorAll或:required,可以直接无视
                     avalon.each(elem.querySelectorAll(":required"), function (el) {
                         elem.required = false
                         el.setAttribute("_required", "true")
                     })
-                }catch(e){}
+                } catch (e) {
                 }
+
                 var node = binding.element = DOC.createComment("ms-if"),
                         pos = elem.nextSibling
                 binding.recoverNode = function () {

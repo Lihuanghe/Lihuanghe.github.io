@@ -1,0 +1,67 @@
+{
+    "returnCode": "0",
+    "returnMessage": "success",
+    "total":"100",
+    "beans": [
+        {
+            "id": false,
+            "prodName": "iphone",
+            "price": "6000",
+            "type": "6 plus",
+            "sell": "1989",
+            "inventory": "989",
+            "addDate": "2015-12-05",
+            "state": "111"
+        },
+        {
+            "id": 0,
+            "prodName": "iphone",
+            "price": "6000",
+            "type": "6 plus",
+            "sell": "1989",
+            "inventory": "989",
+            "addDate": "2015-12-05",
+            "state": "111"
+        },
+        {
+            "id": 3,
+            "prodName": "iphone",
+            "price": "6000",
+            "type": "6 plus",
+            "sell": "1989",
+            "inventory": "989",
+            "addDate": "2015-12-05",
+            "state": "111"
+        },
+        {
+            "id": 3,
+            "prodName": "iphone",
+            "price": "6000",
+            "type": "6 plus",
+            "sell": "1989",
+            "inventory": "989",
+            "addDate": "2015-12-05",
+            "state": "111"
+        },
+        {
+            "id": 3,
+            "prodName": "iphone",
+            "price": "6000",
+            "type": "6 plus",
+            "sell": "1989",
+            "inventory": "989",
+            "addDate": "2015-12-05",
+            "state": "111"
+        },
+        {
+            "id": 3,
+            "prodName": "iphone",
+            "price": "6000",
+            "type": "6 plus",
+            "sell": "1989",
+            "inventory": "989",
+            "addDate": "2015-12-05",
+            "state": "111"
+        }
+    ]
+}

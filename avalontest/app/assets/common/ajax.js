@@ -1,6 +1,8 @@
 /**
- * 通过 HTTP 请求加载远程数据，底层依赖jQuery的AJAX实现。当前接口实现了对jQuery AJAX接口的进一步封装。
- */
+* @author:fanyu
+* @date：2015-09-16
+* @desc: 通过 HTTP 请求加载远程数据，底层依赖jQuery的AJAX实现。当前接口实现了对jQuery AJAX接口的进一步封装。
+*/
 define(['jquery'], function($){
 	var ajax = {
 		/**

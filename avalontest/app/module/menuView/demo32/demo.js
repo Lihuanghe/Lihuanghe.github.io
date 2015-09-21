@@ -1,4 +1,4 @@
-define(['config','easyui'],function(config){
+define(['config','easyui','text!app/module/menuView/demo32/demo.html'],function(config,easyui,viewHTML){
 	var wrapperOptions = {
 								width: 'auto',  
 								height:300,               
@@ -30,7 +30,7 @@ define(['config','easyui'],function(config){
 	
 // 定义视图模块
 	var viewmod =  {
-	    viewtSrc: 'app/module/menuView/demo32/demo.html',
+	    viewtSrc: viewHTML,
 		viewInit:function(){
 			$('#32').datagrid(wrapperOptions);
 			$('button').on('click',function(){

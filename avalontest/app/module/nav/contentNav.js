@@ -1,8 +1,8 @@
-﻿define(['avalon','jquery',"mmRouter",'config',"app/module/menuView/menuView.js"],function(avalon,jquery,mmRoute,config){
+﻿define(['avalon','jquery',"mmRouter",'config',"app/module/menuView/menuView.js",'text!app/module/nav/contentNav.html'],function(avalon,jquery,mmRoute,config,menuView,contentHTML){
 
  var model = avalon.define({
                 $id: "content-nav",
-                content:'app/module/nav/contentNav.html',
+                content:contentHTML,
 				menuData:[],
 				curMenu:"",
 				firstMenu:function(){
@@ -55,7 +55,7 @@
 				switchMenu:function(){
 				
 					model.curMenu = this.path;
-					avalon.vmodels['menuView'].loadView(this.path);
+				
 					avalon.log(this.path);
 					//avalon.log(this.params);
 					//avalon.log(this.query);
@@ -98,11 +98,12 @@
 		
 			$.get(config.contentNavURL,function(data){
 				model.menuData = data.menuData;
+				model.render();
 			});
 
 			//监听当前的菜单，切换对应的视图
 			model.$watch('curMenu',function(newval,oldval){
-			 	
+			 	avalon.vmodels['menuView'].loadView(newval);
 			})
 			
  return model;

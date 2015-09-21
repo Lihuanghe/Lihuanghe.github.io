@@ -1,8 +1,7 @@
 /*
-    ajax服务地址管理器
-    修改conf切换调用地址
-    0：调用前端mock数据
-    1：调用后台真是数据
+*   @author:fanyu
+*   @date：2015-09-18
+*   @desc: ajax url manager,修改conf切换调用地址, 0：调用前端mock数据;1：调用后台真是数据
 */
 define([''], function () {
     var svMap = {
@@ -18,7 +17,7 @@ define([''], function () {
             srcPref[1]: 后台地址路径前缀
         */
         // var srcPref = ["../../data/","http://221.176.67.103:30000/ecp/"];
-        srcPref: ["../../asset/data/","/smsManager/"],
+        srcPref: ["../../assets/data/","/smsManager/"],
         //
         svArray: [
             {

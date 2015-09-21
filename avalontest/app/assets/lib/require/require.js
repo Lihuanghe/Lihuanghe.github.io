@@ -1636,6 +1636,24 @@ var requirejs, require, define;
                     url = (url.charAt(0) === '/' || url.match(/^[\w\+\.\-]+:/) ? '' : config.baseUrl) + url;
                 }
 
+                if (!config.urlArgs) {
+                    return url;
+                }
+
+                if (typeof config.urlArgs === 'string') {
+                    return url + ((url.indexOf('?') === -1 ? '?' : '&') + config.urlArgs);
+                }
+
+                if (isFunction(config.urlArgs)) {
+                    var urlArgs;
+                    try {
+                      urlArgs = config.urlArgs.call(config, moduleName, url);
+                    } catch (e) {
+                      urlArgs = "";
+                    }
+                     return url + ((url.indexOf('?') === -1 ? '?' : '&') + urlArgs);
+                }
+
                 return config.urlArgs ? url +
                                         ((url.indexOf('?') === -1 ? '?' : '&') +
                                          config.urlArgs) : url;

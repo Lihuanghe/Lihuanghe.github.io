@@ -4,7 +4,7 @@ define(['avalon','jquery','ajax','svMap'],function (avalon, $, Ajax,svMap) {
 
 	Ajax.postJson(svMap.get("leftNav"), "", function(json, status){
 		if (status) {
-			leftNav.data = json.beans;
+			leftNav.data = json.menuData;
 		}else{
 			alert('error');
 		}
@@ -12,7 +12,7 @@ define(['avalon','jquery','ajax','svMap'],function (avalon, $, Ajax,svMap) {
 
 	var leftNav = avalon.define({
 		$id: "leftNav",
-		data: null,
+		data: [],
 		firstFunc: function(el){
 				var _this = $(this);
 				if (_this.hasClass('open')) {

@@ -1,19 +1,13 @@
 define(['avalon','jquery','wrapper','config','loading','css!app/assets/css/loading.css'],function(avalon,jquery,wrapper,config){
-	wrapper.wrap('loading', "<div></div>",function(vm,el){
-		var target = $(el);
-		if(target.hasClass('loading'))	return;
-		
-		$(el).loadingOverlay();
- 	});
 
  var loadingmodule = {
-    viewtSrc: 'app/module/menuView/loading.html',
+    viewtSrc: "<jq:loading $id='loading'></jq:loading>",
 	viewInit:function(){},   //模块view加载完成后的回调方法，在刷新（F5）时可能调用两次
 	viewDestroy:function(){} //切换菜单时销毁原来的view
  };
 
  var errormodule = {
-    viewtSrc: 'app/module/menuView/error.html',
+    viewtSrc: '<span>{{curPath}} 页面不存在</span>',
 	viewInit:function(){},   //模块view加载完成后的回调方法，在刷新（F5）时可能调用两次
 	viewDestroy:function(){} //切换菜单时销毁原来的view
  };
@@ -51,10 +45,8 @@ define(['avalon','jquery','wrapper','config','loading','css!app/assets/css/loadi
 				$updateView : function(mod){
 					model.module = mod;
 					model.contentSrc  = mod.viewtSrc;
-				},
-				 render : function(){
-				 	model.module.viewInit();
-				 }
+					setTimeout(mod.viewInit,50)
+				}
             });
  return model;
 });

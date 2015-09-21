@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta name="renderer" content="webkit" />
+<meta http-equiv="X-UA-Compatible" content="IE=8,chrome=1" />
+<link rel="shortcut icon" href="../../../favicon.ico" type="image/x-icon" />
+<title>example</title>
+<link rel="stylesheet" href="../../assets/css/reset.css">
+<link rel="stylesheet" href="../../assets/css/common.css">
+<link rel="stylesheet" href="../../assets/css/layout.css">
+<link rel="stylesheet" href="../../assets/lib/pagination/1.2.1/pagination.css">
+</head>
+<body>
+	<div class="ui-header">
+		<a href="javascrpt:;" class="ui-logo fn-left">
+		</a>
+		<ul class="ui-header-nav ms-controller" ms-controller="header">
+			<li ms-repeat="headerData" ms-on-click="onclick"><a href="javascript:;">{{el.name}}</a></li>
+		</ul>
+	</div>
+	<div class="ui-content">
+		<div  class="ui-left-wrap">
+			<ul class="ui-nav ms-controller" ms-controller="leftNav">
+				<li ms-repeat-first="data">
+					<div class="ui-nav-first" ms-on-click="firstFunc(first)">
+						<span class="label">{{first.name}}</span>
+						<span class="arrow">∨</span>
+					</div>
+					<dl class="ui-nav-second" ms-if="first.subMenu!==undefined && first.subMenu.length>0" ms-repeat-second="first.subMenu">
+						<dt ms-if="second.subMenu!==undefined && second.subMenu.length>0" ms-on-click="secondFunc(second)">
+							<a href="javascript:;"><i>+</i> {{second.name}}</a>
+						</dt>
+						<dd ms-if="!(second.subMenu!==undefined && second.subMenu.length>0)">
+							<a href="javascript:;">{{second.name}}</a>
+						</dd>
+						<dd ms-if="second.subMenu!==undefined && second.subMenu.length>0" ms-repeat-third="second.subMenu" ms-attr-id="{{third.id}}">
+							<a href="javascript:;">{{third.name}}</a>
+						</dd>
+					</dl>
+				</li>
+			</ul>
+		</div>
+		<div class="ui-right-layout">
+			<div class="ui-right-wrap fn-clear">
+               	<form class="ui-search-form ms-controller" ms-controller="searchForm">
+                    <table class="ui-search-table" width="100%">
+                        <tr>
+                            <td width="60"><label class="ui-description">商品名称</label></td>
+                            <td width="100">
+                                <input class="ui-inputText" type="text" ms-duplex="datas.busiName" />
+                            </td>
+                            <td width="60">
+                                <label class="ui-description" for="busiId">库存数量</label></td>
+                            <td width="100">
+                                <input class="ui-inputText" type="text" ms-duplex="datas.busiName1" />
+                            </td>
+                            <td width="60">
+                                <label class="ui-description" for="cityId">名称</label></td>
+                            <td width="100">
+                                <input class="ui-inputText" type="text" ms-duplex="datas.busiName2" />
+                            </td>
+                            <td width="120">
+                                <a class="ui-searchBtn" href="javascript:;" ms-on-click="submit()"><i></i>查询</a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td width="90"><label class="ui-description">名称</label></td>
+                            <td width="150">
+                                <input class="ui-inputText" type="text" ms-duplex="datas.busiName3" />
+                            </td>
+                            <td width="90"><label class="ui-description">日期起</label></td>
+                            <td width="150">
+                                <input type="text" class="ui-FormInputText ui-Wdate" ms-duplex="datas.start" />                                    
+                            </td>
+                            <td width="90"><label class="ui-description">日期止</label></td>
+                            <td width="150">
+                                <input type="text" class="ui-FormInputText ui-Wdate" ms-duplex="datas.end" />
+                            </td>
+                        </tr>
+                	</table>
+                </form>
+                <div class="ui-tablewidth mt-10" ms-controller="tableWrap">
+                    <table class="ui-zx-table">
+                        <thead>
+                            <tr>
+                                <th width="25">
+                                	<input type="checkbox">
+                                </th>
+                                <th>商品名称</th>
+                                <th width="60">价格（元）</th>
+                                <th width="60">名称</th>
+                                <th width="50">已出售</th>
+                                <th width="50">库存</th>
+                                <th width="150">添加时间</th>
+                                <th width="50">状态</th>
+                                <th width="80">操作</th>
+                            </tr>
+                         </thead>
+                         <tbody class="ms-controller" ms-controller="tableTpl">
+                    		<tr ms-if="json.length> 0" ms-repeat="json">
+		                        <td><input type="checkbox" ms-attr-trid="el.id" ms-duplex-checked ="el.id"></td>
+		                        <td>{{el.prodName}}</td>
+		                        <td>{{el.price}}</td>
+		                        <td>{{el.type}}</td>
+		                        <td><div class="gridNum">{{el.sell}}</div></td>
+		                        <td><div class="gridNum">{{el.inventory}}</div></td>
+		                        <td>{{el.addDate}}</td>
+		                        <td>{{el.state}}</td>
+		                        <td width="110">
+		                        	<a href="javascript:;" ms-on-click="edit(el.id)">编辑</a>
+		                        	<a href="javascript:;" ms-on-click="del(el.id)">删除</a>
+		                        </td>
+		                    </tr>
+		                    <tr ms-if="json.length < 1">
+		                    	<td colspan="9">没有数据</td>
+		                    </tr>
+	            		</tbody>
+                    </table>
+                    <a class="ui-searchBtn" href="javascript:;" ms-on-click="operat()">编辑</a>
+                </div>
+			    <div id="J_pager" class="pagination fn-right"></div>
+			</div>
+		</div>
+	</div>
+<script src="../../assets/lib/require/require.js" data-main="../../assets/common/app.js"></script>
+</body>
+</html>
