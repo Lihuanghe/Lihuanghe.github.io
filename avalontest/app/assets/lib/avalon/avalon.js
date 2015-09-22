@@ -1431,8 +1431,11 @@ function toJson(val) {
     } else if (xtype === "object") {
         var obj = {}
         for (i in val) {
-            if (val.hasOwnProperty(i)) {
-                obj[i] = toJson(val[i])
+            if (i === "__const__" || i === "__data__" || i === "__proxy__")
+                continue
+            if (val.hasOwnProperty && val.hasOwnProperty(i)) {
+                var value = val[i]
+                obj[i] = value && value.nodeType ? value : toJson(value)
             }
         }
         return obj

@@ -40,7 +40,7 @@ define(['config','easyui','text!app/module/menuView/demo/demo.html'],function(co
 						replynumber:'replynumber-'+Math.ceil(Math.random()*1000)};
 						tmp.push(row);
 					});
-					$(avalon.vmodels.test.$DOMelement()).datagrid('loadData',tmp);
+					$(avalon.vmodels.test.$DOMelement).datagrid('loadData',tmp);
 				 }
       });
 

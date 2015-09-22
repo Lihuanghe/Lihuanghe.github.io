@@ -37,6 +37,10 @@ define(['avalon','jquery','wrapper','config','loading','css!app/assets/css/loadi
 	               		model.$updateView(errormodule); 
                		}else{
                			require([mod],function(mod){
+               				if(mod===undefined){
+			               		avalon.log('Error ViewModule have not loaded . you should load module.path into config.pathMap in config.js .path =  ' + path )
+			               		model.$updateView(errormodule); 
+		               		}
                				model.$updateView(mod); 
                			});
                		}

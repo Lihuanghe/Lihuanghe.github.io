@@ -7,14 +7,14 @@ define(['avalon','jquery'],function(avalon,jquery){
 			avalon.component("jq:"+name, {
 				wrapperOptions:{},
 			    $replace: true,
-			    $DOMelement:function(){},
+			    $DOMelement:{},
 			    $init:function(vm,el){
 			    	 avalon.log('init :' + vm.$id )
 			    },
 			    $ready: function (vm,el) {
 			    	 //bugfix: https://github.com/RubyLouvre/avalon/issues/1063
 			    	 //需要使用function来保存el对象，直接保存在IE8个获取$model属性时报错：对象不支持“hasOwnProperty”属性或方法
-			       vm.$DOMelement = function(){return el};  
+			       vm.$DOMelement = el;  
 			       if(init)
 			       		init(vm,el);
 			    },
