@@ -12,7 +12,7 @@
 			    vmId: vm
 		    };
 */
-define(['avalon','ajax','assets/common/loading/blockLoading','pagination'],function(avalon, ajax, loading){
+define(['avalon','ajax','assets/common/loading/blockLoading','pagination','css!assets/lib/pagination/1.2.1/pagination.css'],function(avalon, ajax, loading){
 	var pager = function(obj){
 		loading.create('.ui-tablewidth');//添加loading提示
 	    ajax.postJson(obj.url, 'start='+(obj.page_index*obj.items_per_page)+'&limit='+obj.items_per_page+'&'+obj.formStr, function(json,state){

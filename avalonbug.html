@@ -1,0 +1,49 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<script src="avalontest/app/assets/lib/avalon/avalon.js"></script>
+<script type="text/javascript">
+	
+		var model = avalon.define({
+                $id: "main",
+				test:'在IE8下的组件有bug'
+      });
+	  avalon.library("te");
+	avalon.component("te:test", {
+				$replace: true,
+				test:'12',
+			    $DOMelement:function(){},
+			    $init:function(vm,el){
+			    	 avalon.log('init :' + vm.$id )
+			    },
+			    $ready: function (vm,el) {
+			       vm.$DOMelement = function(){return el};
+				    avalon.log('ready :' + vm.$id )
+			    },
+			    $dispose :function(vm,el){
+			    	 el.innerHTML =  ""
+			    	 avalon.log('dispose :' + vm.$id )
+			    },
+			    $template: '<span>ABC</span>'
+			});
+
+	  
+	 avalon.ready(function(){
+	    avalon.scan();
+		setTimeout(function(){
+		  avalon.log(avalon.vmodels.test.$model.$DOMelement())  ; //这一行报错
+		},500);
+
+	  });
+	 
+	
+</script>
+</head>
+<body class="ms-controller" ms-controller="main">
+<div>
+<te:test $id='test'></te:test>
+</div>
+</body>
+
+</html>

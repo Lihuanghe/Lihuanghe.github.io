@@ -76,7 +76,6 @@ var class2type = {}
 })
 
 
-
 function noop() {
 }
 
@@ -1432,12 +1431,9 @@ function toJson(val) {
     } else if (xtype === "object") {
         var obj = {}
         for (i in val) {
-          
             if (val.hasOwnProperty(i)) {
                 obj[i] = toJson(val[i])
             }
-       
-
         }
         return obj
     }

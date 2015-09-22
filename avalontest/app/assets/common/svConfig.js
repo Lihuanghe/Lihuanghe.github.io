@@ -18,7 +18,6 @@ define([''], function () {
         */
         // var srcPref = ["../../data/","http://221.176.67.103:30000/ecp/"];
         srcPref: ["../../assets/data/","/smsManager/"],
-        //
         svArray: [
             {
                 //"query":"../../asset/data/query.json",//demo
