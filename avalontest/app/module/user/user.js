@@ -12,7 +12,7 @@ define(['avalon','jquery','config'],function(avalon,jquery,config){
 
 	 	this.login = function(username,passwd,callback){
 	 	
-	 		$.post(config.loginURL,{u:username,p:passwd},function(data){
+	 		$.get(config.loginURL,{u:username,p:passwd},function(data){
 	 			if(data.result === 0){
 	 				this.username = username;
 	 				this.userid = data.data.userid;
@@ -23,7 +23,7 @@ define(['avalon','jquery','config'],function(avalon,jquery,config){
 	 	};
 
 	 	this.logout=function(callback){
-		$.post(config.logoutURL,function(data){
+		$.get(config.logoutURL,function(data){
 	 			if(data.result === 0){
 	 				_isLogin = false;
 	 			}
