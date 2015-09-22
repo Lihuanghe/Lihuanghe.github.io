@@ -5,7 +5,7 @@
  http://weibo.com/jslouvre/
  
  Released under the MIT license
- avalon.shim.js 1.5.2 built in 2015.9.18
+ avalon.js 1.5.2 built in 2015.9.22
  support IE6+ and other browsers
  ==================================================*/
 (function(global, factory) {
@@ -74,11 +74,10 @@ var class2type = {}
 "Boolean Number String Function Array Date RegExp Object Error".replace(rword, function (name) {
     class2type["[object " + name + "]"] = name.toLowerCase()
 })
-
-
-function noop() {
+function CSPcompile(array){
+    return Object.constructor.apply(0,array)
 }
-
+function noop(){}
 
 function oneObject(array, val) {
     if (typeof array === "string") {
@@ -111,11 +110,6 @@ avalon = function (el) { //创建jQuery式的无new 实例化结构
     return new avalon.init(el)
 }
 
-avalon.profile = function () {
-    if (window.console && avalon.config.profile) {
-        Function.apply.call(console.log, console, arguments)
-    }
-}
 
 /*视浏览器情况采用最快的异步回调*/
 avalon.nextTick = new function () {// jshint ignore:line
@@ -958,14 +952,14 @@ function $watch(expr, binding) {
     var queue = $events[expr] || ($events[expr] = [])
     if (typeof binding === "function") {
         var backup = binding
-        backup.uuid = Math.random()
+        backup.uniqueNumber = Math.random()
         binding = {
             element: root,
             type: "user-watcher",
             handler: noop,
             vmodels: [this],
             expr: expr,
-            uuid: backup.uuid
+            uniqueNumber: backup.uniqueNumber
         }
         binding.wildcard = /\*/.test(expr)
     }
@@ -1431,11 +1425,11 @@ function toJson(val) {
     } else if (xtype === "object") {
         var obj = {}
         for (i in val) {
-            if (i === "__const__" || i === "__data__" || i === "__proxy__")
+            if(i === "__proxy__" || i === "__data__" || i === "__const__")
                 continue
-            if (val.hasOwnProperty && val.hasOwnProperty(i)) {
+            if (val.hasOwnProperty(i)) {
                 var value = val[i]
-                obj[i] = value && value.nodeType ? value : toJson(value)
+                obj[i] = value && value.nodeType ? value :toJson(value)
             }
         }
         return obj
@@ -1858,19 +1852,19 @@ var beginTime = new Date()
 var oldInfo = {}
 
 function getUid(data) { //IE9+,标准浏览器
-    if (!data.uuid) {
+    if (!data.uniqueNumber) {
         var elem = data.element
         if (elem) {
             if (elem.nodeType !== 1) {
-                data.uuid = data.type + (data.pos || 0) + "-" + getUid(elem.parentNode)
+                data.uniqueNumber = data.type + (data.pos || 0) + "-" + getUid(elem.parentNode)
             } else {
-                data.uuid = data.name + "-" + getUid(elem)
+                data.uniqueNumber = data.name + "-" + getUid(elem)
             }
         } else {
-            data.uuid = ++disposeCount
+            data.uniqueNumber = ++disposeCount
         }
     }
-    return data.uuid
+    return data.uniqueNumber
 }
 
 //添加到回收列队中
@@ -1918,7 +1912,7 @@ function rejectDisposeQueue(data) {
             }
             if (iffishTypes[data.type] && shouldDispose(data.element)) { //如果它没有在DOM树
                 disposeQueue.splice(i, 1)
-                delete disposeQueue[data.uuid]
+                delete disposeQueue[data.uniqueNumber]
                 var lists = data.lists
                 for (var k = 0, list; list = lists[k++]; ) {
                     avalon.Array.remove(lists, list)
@@ -1933,7 +1927,7 @@ function rejectDisposeQueue(data) {
 }
 
 function disposeData(data) {
-    delete disposeQueue[data.uuid] // 先清除，不然无法回收了
+    delete disposeQueue[data.uniqueNumber] // 先清除，不然无法回收了
     data.element = null
     data.rollback && data.rollback()
     for (var key in data) {
@@ -2696,7 +2690,7 @@ function parser(input) {
 
         try {
             /* jshint ignore:start */
-            var execText = Function("return " + content)()
+            var execText = CSPcompile(["return " + content])()
             /* jshint ignore:end */
 
             execText += ''
@@ -2931,7 +2925,7 @@ function parseExpr(expr, vmodels, binding) {
             return nameOne[a] ? nameOne[a] : a
         })
         /* jshint ignore:start */
-        var fn2 = Function.apply(noop, names.concat("'use strict';" +
+        var fn2 = CSPcompile(names.concat("'use strict';" +
                 "return function(vvv){" + expr + " = vvv\n}\n"))
         /* jshint ignore:end */
         evaluatorPool.put(exprId + "setter", fn2)
@@ -2954,7 +2948,7 @@ function parseExpr(expr, vmodels, binding) {
         expr = "\nreturn " + expr + ";" //IE全家 Function("return ")出错，需要Function("return ;")
     }
     /* jshint ignore:start */
-    getter = Function.apply(noop, names.concat("'use strict';\nvar " +
+    getter = CSPcompile(names.concat("'use strict';\nvar " +
             assigns.join(",\n") + expr))
     /* jshint ignore:end */
 
@@ -3010,7 +3004,7 @@ function parseFilter(filters) {
                 return '",'
             }) + "]"
     /* jshint ignore:start */
-    return  Function("return [" + filters + "]")()
+    return  CSPcompile(["return [" + filters + "]"])()
     /* jshint ignore:end */
 
 }
@@ -3164,7 +3158,7 @@ function scanAttr(elem, vmodels, match) {
                             name: name,
                             expr: newValue,
                             oneTime: oneTime,
-                            uuid: attr.name + "-" + getUid(elem),
+                            uniqueNumber: attr.name + "-" + getUid(elem),
                             //chrome与firefox下Number(param)得到的值不一样 #855
                             priority: (directives[type].priority || type.charCodeAt(0) * 10) + (Number(param.replace(/\D/g, "")) || 0)
                         }
@@ -3932,7 +3926,7 @@ var duplexBinding = avalon.directive("duplex", {
         if (elem.msData) {
             elem.msData["ms-duplex"] = binding.expr
         }
-
+   
         binding.param.replace(rw20g, function (name) {
             if (rduplexType.test(elem.type) && rduplexParam.test(name)) {
                 if (name === "radio")
@@ -3953,9 +3947,6 @@ var duplexBinding = avalon.directive("duplex", {
             }
             avalon.Array.ensure(params, name)
         })
-        if (elem.type === "radio") {
-            binding.xtype = "radio"
-        }
         if (!hasCast) {
             params.push("string")
         }
@@ -3964,6 +3955,7 @@ var duplexBinding = avalon.directive("duplex", {
         if (!binding.xtype) {
             binding.xtype = elem.tagName === "SELECT" ? "select" :
                     elem.type === "checkbox" ? "checkbox" :
+                    elem.type === "radio" ? "radio" :
                     /^change/.test(elem.getAttribute("data-duplex-event")) ? "change" :
                     "input"
         }
