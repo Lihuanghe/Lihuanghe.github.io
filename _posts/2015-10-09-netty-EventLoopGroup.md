@@ -26,6 +26,7 @@ Netty5中EventLoopGroup实现了ScheduledExecutorService接口，因此在业务
 解决办法：
 	注意如果有阻塞任务不能使用EventLoopGroup，但是由于EventLoopGroup提供的io.netty.util.concurrent.Future比JDK的好用(有addListener()方法)，所以找了Guava18.0里的ListeningScheduledExecutorService类来代替EventLoopGroup.
 ·private final static ListeningScheduledExecutorService busiWork = MoreExecutors.listeningDecorator(new ScheduledThreadPoolExecutor(10,new DefaultThreadFactory("busiWork-")));·
+另外需要注意的是： EventLoop.schedule()方法返回的 future是无法中断的，任务不会抛interupted异常。
 
 比如实现了方法：
 

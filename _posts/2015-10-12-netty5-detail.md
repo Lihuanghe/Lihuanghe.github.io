@@ -79,7 +79,8 @@ Netty5: ServerSocketChannel启动说明： 以NettyExample 里EchoServer为例
                 child.attr((AttributeKey<Object>) e.getKey()).set(e.getValue());
             }
 
-	    // 这里是注册childChannel的READ事件到workGroup线程池里，让Selector 处理这个连接的Read事件。
+	    // 这里是注册childChannel的READ事件到workGroup线程池的一个线程上，让Selector 处理这个连接的Read事件。
+        // 这里要注意一下 了 : netty的线程模型正是在这里体现的. 一个channel只会注册到一个EventLoop(线程)里,以后这个channel就由这个EventLoop负责了. 这样保证了channelHandler不会被多个线程调用. 避免了多线程并发的复杂性.
 	    // 这样当有数据到达时，childGroup线程调用selector.select()方法会返回，并调用unSafe.read()方法。
 	    // 最终会调用NioSocketChannel.doReadBytes()方法，完成数据读取,再触发PipeLine的channelRead()方法，跟Accep事件的处理一样的。
 	    // 只是传给ChannelRead()方法的参数是Bytebuf.   
