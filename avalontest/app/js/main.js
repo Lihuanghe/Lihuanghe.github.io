@@ -3,9 +3,7 @@ define(["app/module/user/user.js",'wrapper'],function(user,wrapper){
 /*
  * 加载jqery包装生成的组件
  */
-	wrapper.wrap('datagrid', "<table></table>",function(vm,el){
-		$(el).datagrid(vm.$model.wrapperOptions);
- 	});
+
 
 	wrapper.wrap('loading', "<div></div>",function(vm,el){
 		var target = $(el);

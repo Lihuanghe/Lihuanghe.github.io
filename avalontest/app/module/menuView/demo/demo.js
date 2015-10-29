@@ -1,4 +1,4 @@
-define(['config','easyui','text!app/module/menuView/demo/demo.html'],function(config,easyui,viewHTML){
+define(['config','easyui','text!app/module/menuView/demo/demo.html','wrapper'],function(config,easyui,viewHTML,wrapper){
 	var wrapperOptions = {
 								width: 'auto',  
 								height:300,               
@@ -26,6 +26,9 @@ define(['config','easyui','text!app/module/menuView/demo/demo.html'],function(co
 									{adviceid:'value11', consulter:'value12',content:'value3',replynumber:'value4'},{adviceid:'value11', consulter:'value12',content:'value3',replynumber:'value4'}
 								]
 						};
+	wrapper.wrap('datagrid', "<table></table>",function(vm,el){
+		$(el).datagrid(vm.$model.wrapperOptions);
+ 	});
 
 	var model = avalon.define({
                 $id: "demoView",

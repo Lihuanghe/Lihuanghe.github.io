@@ -16,7 +16,11 @@
                 },
                 {
                     "id": 33,
-                    "name": "ava组件封装视图"
+                    "name": "ava组件封装easyUI-datagrid视图"
+                },
+                {
+                    "id": 34,
+                    "name": "ava组件封装ztree视图"
                 }
             ]
         },
