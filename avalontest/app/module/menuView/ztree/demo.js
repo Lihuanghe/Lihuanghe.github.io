@@ -6,7 +6,8 @@ define(['config','wrapper','ztree','text!app/module/menuView/ztree/demo.html','c
 				url:"app/assets/data/ztree.json",
 				autoParam:["id", "name=n", "level=lv"],
 				otherParam:{"otherParam":"zTreeAsyncTest"},
-				dataFilter: filter
+				dataFilter: filter,
+				type:'get'
 			}
 		};
 
