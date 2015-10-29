@@ -66,7 +66,7 @@ define(['config','wrapper','ztree','text!app/module/menuView/ztree/demo.html','c
 
 		];
 
-	wrapper.wrap('tree', '<ul class="ztree">></ul>',function(vm,el){
+	wrapper.wrap('ztree', '<ul class="ztree"></ul>',function(vm,el){
 		$.fn.zTree.init($(el), vm.$model.setting, vm.$model.wrapperOptions);
 		//$.fn.zTree.init($(el), vm.$model.setting, vm.$model.wrapperOptions);
  	});
