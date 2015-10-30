@@ -1,17 +1,21 @@
 
 <div class="content_wrap">
 	<div class=" ms-controller"  ms-controller="vmdemo">
-		将一个正整数组分成三组,使每组的数字之和相近.
-		<br/><br/><br/>数组大小:<input ms-duplex-number="size"></input>
+		将一个正整数组分成N组,使每组的数字之和相近.
+		<br/><br/><br/>
+		数组大小  :<input ms-duplex-number="size"><br/>
+		分成的组数:<input ms-duplex-number="cnt"></input>
 		<button ms-on-click="run">运行</button>
 		<br/><label>原始数组: </label><span>{{origin}}</span><br/>
 		<label>验证数组: </label><span>{{totalarr}}</span><span></span><br/>
 		<br/><br/>
 
-		<label>和平均数 (sum/3): </label><span>{{avg}}</span><span></span><br/>
-		<label>数组1: </label><span>{{arr1}}</span><span></span><br/>
-		<label>数组2: </label><span>{{arr2}}</span><span></span><br/>
-		<label>数组3: </label><span>{{arr3}}</span><span></span><br/>
+		<label>和平均数 (sum/{{cnt}}): </label><span>{{avg}}</span><span></span><br/>
+		<div ms-repeat="result">
+			<label>数组{{$index +1 }}: </label><span>{{el}}</span><span></span><br/>
+		</div>
 
+		<br/><br/>
+		<label>各数据组之和的方差: </label><span>{{variance}}</span><span></span><br/>
 	</div>
 </div>

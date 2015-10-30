@@ -1,6 +1,7 @@
-define(['config','text!app/module/menuView/zh/demo.html'],
-	function(config,viewHTML){
-
+define(['config','text!app/module/menuView/zh/demo.html','jstat'],
+	function(config,viewHTML,jStat){
+	var jStat = jStat.jStat;
+	console.log(jStat);
 	var GetRandomNum = function (Min,Max)
 	{   
 		var Range = Max - Min;   
@@ -11,12 +12,12 @@ define(['config','text!app/module/menuView/zh/demo.html'],
 	var createoriginArr = function (size){
 		var t = [];
 		var sum = 0;
-		for(; size-- > 0;){
-			var num = GetRandomNum(1,100);
+		for(var i=0; i < size; i++){
+			var num = GetRandomNum(3,1000);
 			sum += num;
 			t.push(num);
 		}
-		model.avg = sum/3;
+		model.avg = sum/model.cnt;
 		return t.sort(function(a,b){return a<b?1:-1});
 	}
 
@@ -28,11 +29,27 @@ define(['config','text!app/module/menuView/zh/demo.html'],
 		while(true){
 
 			if(sum == 0) break;
-			if(i == arr.length) break;
-			if(arr[i] === undefined){
+			
+			if(arr[i] === undefined && i<arr.length){
 				i++;
 				continue;
 			}
+
+			if(i == arr.length){
+				//已是最后一个数了
+				//退回一个数
+				var t = ret.pop();
+				if(t){
+					sum += arr[t];
+					i = t+1;
+					continue;
+				}else{
+					//结果集合内没有数字了
+					break;
+				}
+						
+			}
+
 			if(sum > 0){
 				if(sum - arr[i] >= 0){
 
@@ -40,34 +57,20 @@ define(['config','text!app/module/menuView/zh/demo.html'],
 					ret.push(i++);
 				
 				}else{
-
-					if(i+1 == arr.length){
-						//已是最后一个数了
-						//退回一个数
-						var t = ret.pop();
-						if(t){
-							sum += arr[t];
-							i = t+1;
-						}else{
-							//结果集合内没有数字了
-							break;
-						}
-						
-					}else{
-						i++;
-					}
-					
+					i++;
 				}
 			}
 		}
 
 		if(sum == 0) {
 			var result = [];
+			var sum = 0;
 			for(j in ret){
 				result.push(arr[ret[j]]);
+				sum += arr[ret[j]];
 				delete arr[ret[j]] ;
 			}
-			return result;
+			return {"result":result,"sum":sum};
 		}else{
 			if(oldsum - 1 > 0){
 				return aaa(arr,oldsum-1);
@@ -87,7 +90,7 @@ define(['config','text!app/module/menuView/zh/demo.html'],
                 			sum += arr[j];
                 			ret.push(arr[j]);
                 		}
-                		return ret.join(' , ') + '=>'+ sum ;
+                		return {"str":ret.join(' , ') + '=>'+ sum ,"sum":sum} ;
                 	};
 
 	var model = avalon.define({
@@ -95,26 +98,47 @@ define(['config','text!app/module/menuView/zh/demo.html'],
                 run: function(){
                 	
                 	var origin = createoriginArr(model.size)
-                	model.origin = myjoin(origin);
+                	model.origin = myjoin(origin).str;
+                	var avg = model.avg;
+                	if(Math.ceil(model.avg) != model.avg ){
+                		//平均数向上取整
+                		avg =  Math.ceil(model.avg) 
+                	}
+                	var result = [];
+                	var assertarr = [];
+                	var t_deviation = 0; //保存误差
+                	var sumArr = [];
+                	for(var i = 0; i< model.cnt-1 ; i++){
+                		var arr = aaa(origin ,avg + Math.round(t_deviation));
+                		if(arr != undefined){
+                			t_deviation += ( model.avg  - arr.sum );
+                			assertarr = assertarr.concat(arr.result);
+ 							result.push( myjoin(arr.result).str);
+ 							sumArr.push(arr.sum)
+                		}else{
+                			result.push( "undefined");
+                			sumArr.push(0)
+                		}
 
-                	var arr1 = aaa(origin , Math.round(model.avg));
-                	model.arr1 = (arr1 === undefined ? "undefined" : myjoin(arr1));
+                	}
                 	
-					var arr2 = aaa(origin , Math.round(model.avg));
-                	model.arr2 = (arr2 === undefined ? "undefined" : myjoin(arr2) );
-					
-                	model.arr3 = myjoin(origin);
-                	
-                	model.totalarr =myjoin(origin.concat(arr1).concat(arr2).sort(function(a,b){return a<b?1:-1}));
+                	//剩下的是最后一组
+                	var lastarr =  myjoin(origin);
+                	result.push(lastarr.str);
 
+                	sumArr.push(lastarr.sum)
+
+                	model.result = result;
+                	model.totalarr = myjoin((origin.concat(assertarr)).sort(function(a,b){return a<b?1:-1})).str;
+                	model.variance = jStat.variance(sumArr,true);
                 },
                 avg:0,
-                size:10,
+                size:60,
+                cnt:3,
                 origin:"",
-                arr1:"",
-                arr2:"",
-                arr3:"",
-                totalarr:""
+                result:[],
+                totalarr:"",
+                variance:0
       });
 
 

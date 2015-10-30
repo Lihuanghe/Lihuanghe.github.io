@@ -80,10 +80,20 @@
 			wrapper : 'app/assets/common/avalonJQcomponent',
 			map :'app/assets/common/map',
 			config : 'app/assets/common/config',
-			ztree : 'app/assets/lib/ztree/jquery.ztree.core-3.5'
+			ztree : 'app/assets/lib/ztree/jquery.ztree.core-3.5',
+			jstat: 'app/assets/lib/jstat/jstat'
 		},
 		waitSeconds:0,
 		shim:{
+			jstat: {
+				exports: ['j$', 'jStat'],
+				init: function () {
+					return {
+					  j$: j$,
+					  jStat: jStat
+					};
+				}
+			}
 		},
 		baseUrl : "" ,
 		urlArgs: buildurlArgs
