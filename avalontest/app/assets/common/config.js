@@ -6,7 +6,9 @@ define(['map'],function(map){
 	 map.put('/31', 'app/module/menuView/demo31/demo.js');
 	 
 	 map.put('/32', 'app/module/menuView/demo32/demo.js');
-map.put('/34', 'app/module/menuView/ztree/demo.js');
+     map.put('/34', 'app/module/menuView/ztree/demo.js');
+     map.put('/35', 'app/module/menuView/zh/demo.js');
+     
 	var config = {
 		loginURL :  'app/assets/data/user.json',
 		logoutURL : 'app/assets/data/user.json',
