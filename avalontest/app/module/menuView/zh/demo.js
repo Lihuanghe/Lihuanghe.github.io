@@ -1,7 +1,7 @@
 define(['config','text!app/module/menuView/zh/demo.html','jstat'],
 	function(config,viewHTML,jStat){
 	var jStat = jStat.jStat;
-	console.log(jStat);
+	
 	var GetRandomNum = function (Min,Max)
 	{   
 		var Range = Max - Min;   
