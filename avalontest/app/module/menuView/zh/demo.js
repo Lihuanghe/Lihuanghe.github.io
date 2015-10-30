@@ -141,6 +141,13 @@ define(['config','text!app/module/menuView/zh/demo.html','jstat'],
                 variance:0
       });
 
+	model.$watch('cnt',function(n,o){
+		if(n<2 && o){
+			setTimeout(function(){
+				model.cnt = 2;
+			});
+		} 
+	})
 
 // 定义视图模块
 	var viewmod =  {
