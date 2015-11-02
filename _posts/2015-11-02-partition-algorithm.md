@@ -17,6 +17,7 @@ tags: [algorithm]
 
 
 详情看代码:
+
 ```javascript
 	function aaa(arr,sum){
 		var oldsum = sum;
