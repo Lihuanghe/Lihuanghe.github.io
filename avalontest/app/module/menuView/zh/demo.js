@@ -13,7 +13,7 @@ define(['config','text!app/module/menuView/zh/demo.html','jstat'],
 		var t = [];
 		var sum = 0;
 		for(var i=0; i < size; i++){
-			var num = GetRandomNum(3,1000);
+			var num = GetRandomNum(0,1000);
 			sum += num;
 			t.push(num);
 		}
