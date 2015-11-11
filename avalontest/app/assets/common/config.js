@@ -8,7 +8,7 @@ define(['map'],function(map){
 	 map.put('/32', 'app/module/menuView/demo32/demo.js');
      map.put('/34', 'app/module/menuView/ztree/demo.js');
      map.put('/35', 'app/module/menuView/zh/demo.js');
-     
+     map.put('/36', 'app/module/menuView/selectbug/demo.js');
 	var config = {
 		loginURL :  'app/assets/data/user.json',
 		logoutURL : 'app/assets/data/user.json',
