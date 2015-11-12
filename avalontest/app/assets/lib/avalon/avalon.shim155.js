@@ -3400,6 +3400,10 @@ avalon.component = function (name, opts) {
 
             (function (host, hooks, elem, widget) {
 
+                if (!avalon.contains(DOC, elem)) {
+                    return
+                }
+                   
                 var dependencies = 1
                 var library = host.library
                 var global = avalon.libraries[library] || componentHooks

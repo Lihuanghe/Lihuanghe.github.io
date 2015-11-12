@@ -27,8 +27,11 @@ define(['avalon','jquery','wrapper','config','loading','css!app/assets/css/loadi
 
 					//使用loading组件先更新view，保证上次的视图的组件成功销毁
 					//解决avalon的问题 : https://github.com/RubyLouvre/avalon/issues/1056
-					model.contentSrc  = loadingmodule.viewtSrc;
-					model.$updateView(loadingmodule); 
+					if(model.contentSrc !==  loadingmodule.viewtSrc){
+						model.contentSrc  = loadingmodule.viewtSrc;
+						model.$updateView(loadingmodule); 
+					}
+
 					
 					//加载新的View
 					var mod = config.pathMap.get(path);
