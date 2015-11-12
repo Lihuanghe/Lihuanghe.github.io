@@ -3559,12 +3559,23 @@ avalon.fireDom = function (elem, type, opts) {
         hackEvent.initEvent(type, true, true, opts)
         avalon.mix(hackEvent, opts)
 
-        elem.dispatchEvent(hackEvent)
+        if(/Firefox|Trident/.test(navigator.userAgent) && elem.disabled){
+            elem.disabled = false;
+            setTimeout(function(){
+                elem.dispatchEvent(hackEvent)
+                elem.disabled = true;
+            },20)
+        }else{
+            elem.dispatchEvent(hackEvent) 
+        }
+
+
     } else if (root.contains(elem)) {//IE6-8触发事件必须保证在DOM树中,否则报"SCRIPT16389: 未指明的错误"
         hackEvent = DOC.createEventObject()
         avalon.mix(hackEvent, opts)
         elem.fireEvent("on" + type, hackEvent)
     }
+     avalon.log('====')
 }
 
 
