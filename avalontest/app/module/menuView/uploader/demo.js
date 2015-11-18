@@ -1,7 +1,8 @@
 define(['config','text!app/module/menuView/uploader/demo.html','wrapper','jqUploader'],function(config,viewHTML,wrapper,jqUploader){
-	var ele = {};
+	 var isOnGitHub = window.location.hostname === 'lihuanghe.github.io',
+        url = isOnGitHub ? '//jquery-file-upload.appspot.com/' : 'app/assets/data/upload.json';
 	var wrapperOptions = { 
-							url: 'https://jquery-file-upload.appspot.com/',
+							url: url,
 							dataType: 'json',
 							//必须为false,否则uploader的组件会替换dom ,造成avalon回复组件的vm
 							replaceFileInput: false,
