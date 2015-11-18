@@ -81,7 +81,10 @@
 			map :'app/assets/common/map',
 			config : 'app/assets/common/config',
 			ztree : 'app/assets/lib/ztree/jquery.ztree.core-3.5',
-			jstat: 'app/assets/lib/jstat/jstat'
+			jstat: 'app/assets/lib/jstat/jstat',
+			'jquery.ui.widget' : 'app/assets/lib/uploader/js/vendor/jquery.ui.widget',
+			jqtransport : 'app/assets/lib/uploader/js/jquery.iframe-transport',
+			jqUploader : 'app/assets/lib/uploader/js/jquery.fileupload'
 		},
 		waitSeconds:0,
 		shim:{
@@ -93,7 +96,8 @@
 					  jStat: jStat
 					};
 				}
-			}
+			},
+			jqUploader :["jquery","jquery.ui.widget","jqtransport"]
 		},
 		baseUrl : "" ,
 		urlArgs: buildurlArgs

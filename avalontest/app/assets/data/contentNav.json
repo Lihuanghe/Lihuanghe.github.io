@@ -29,6 +29,10 @@
                 {
                     "id": 36,
                     "name": "avalon select同步问题"
+                },
+                {
+                    "id": 37,
+                    "name": "avalon jquery uploader"
                 }
             ]
         },

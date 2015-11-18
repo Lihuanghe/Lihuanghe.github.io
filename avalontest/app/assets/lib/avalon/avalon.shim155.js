@@ -3559,12 +3559,12 @@ avalon.fireDom = function (elem, type, opts) {
         hackEvent.initEvent(type, true, true, opts)
         avalon.mix(hackEvent, opts)
 
-        if(/Firefox|Trident/.test(navigator.userAgent) && elem.disabled){
+        if(/Firefox|Trident|Mozilla/.test(navigator.userAgent) && elem.disabled){
             elem.disabled = false;
             setTimeout(function(){
                 elem.dispatchEvent(hackEvent)
                 elem.disabled = true;
-            },20)
+            },15)
         }else{
             elem.dispatchEvent(hackEvent) 
         }
@@ -3575,7 +3575,6 @@ avalon.fireDom = function (elem, type, opts) {
         avalon.mix(hackEvent, opts)
         elem.fireEvent("on" + type, hackEvent)
     }
-     avalon.log('====')
 }
 
 
