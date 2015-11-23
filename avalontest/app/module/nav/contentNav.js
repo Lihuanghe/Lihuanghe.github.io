@@ -4,6 +4,7 @@
                 $id: "content-nav",
                 content:contentHTML,
 				menuData:[],
+				$modMap :{},
 				curMenu:"",
 				firstMenu:function(){
 						
@@ -42,11 +43,13 @@
 								avalon.each(item.subMenu,function(idx,item){
 								
 									avalon.router.get(path+'/'+item.id,model.switchMenu);
+									model.$modMap[path+'/'+item.id] = item.module;
 								});
 								
 							}else{
 							
 								avalon.router.get(path,model.switchMenu);
+								model.$modMap[path] = item.module;
 							}
 						});
 					}

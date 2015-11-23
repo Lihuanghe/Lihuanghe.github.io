@@ -8,31 +8,38 @@
             "subMenu": [
                 {
                     "id": 31,
-                    "name": "纯HTML视图"
+                    "name": "纯HTML视图",
+                    "module":"app/module/menuView/demo31/demo"
                 },
                 {
                     "id": 32,
-                    "name": "使用easyui的datagrid视图"
+                    "name": "使用easyui的datagrid视图",
+                    "module":"app/module/menuView/demo32/demo"
                 },
                 {
                     "id": 33,
-                    "name": "ava组件封装easyUI-datagrid视图"
+                    "name": "ava组件封装easyUI-datagrid视图",
+                    "module":"app/module/menuView/demo/demo"
                 },
                 {
                     "id": 34,
-                    "name": "ava组件封装ztree视图"
+                    "name": "ava组件封装ztree视图",
+                    "module":"app/module/menuView/ztree/demo"
                 },
                 {
                     "id": 35,
-                    "name": "组合数之和算法"
+                    "name": "组合数之和算法",
+                    "module":"app/module/menuView/zh/demo"
                 },
                 {
                     "id": 36,
-                    "name": "avalon select同步问题"
+                    "name": "avalon select同步问题",
+                    "module":"app/module/menuView/selectbug/demo"
                 },
                 {
                     "id": 37,
-                    "name": "avalon jquery uploader"
+                    "name": "avalon jquery uploader",
+                    "module":"app/module/menuView/uploader/demo"
                 }
             ]
         },
