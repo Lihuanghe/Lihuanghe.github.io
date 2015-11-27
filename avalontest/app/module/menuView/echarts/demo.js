@@ -27,7 +27,7 @@ define(['avalon','config','text!app/module/menuView/echarts/demo.html','echarts'
                         }
                     ]
                 };
-     wrapper.wrap('avabug', "<div style='height:400px;width:800px;background:green' />",function(vm,el){
+     wrapper.wrap('avabug', "<div style='height:400px;width:800px;background:red' />",function(vm,el){
 
     });
 
@@ -39,7 +39,7 @@ define(['avalon','config','text!app/module/menuView/echarts/demo.html','echarts'
             
     });
      
-     wrapper.wrap('echarts', "<div style='height:400px;width:800px;background:red' /> ",
+     wrapper.wrap('echarts', "<div style='height:400px;width:800px;;;' /> ",
          function(vm,el){ //init
            var mychart = echarts.init(el); 
            mychart.setOption(vm.$model.wrapperOptions);

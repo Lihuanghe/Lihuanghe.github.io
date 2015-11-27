@@ -3484,7 +3484,7 @@ avalon.component = function (name, opts) {
                     var cssText = elem.style.cssText
                     var className = elem.className
                     elem = host.element = child
-                    elem.style.cssText = cssText
+                    elem.style.cssText += ';'+cssText
                     if(className){
                        avalon(elem).addClass(className)
                     }
