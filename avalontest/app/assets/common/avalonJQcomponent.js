@@ -21,7 +21,7 @@ define(['avalon','jquery'],function(avalon,jquery){
 			    $dispose :function(vm,el){
 			    	 el.innerHTML =  ""
 			    	 if(destroy)
-			    	 	destroy(vm.el);
+			    	 	destroy(vm,el);
 			    	 avalon.log('dispose :' + vm.$id )
 			    },
 			    $template: template

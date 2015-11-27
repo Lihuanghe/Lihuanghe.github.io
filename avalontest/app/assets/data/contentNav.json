@@ -40,6 +40,11 @@
                     "id": 37,
                     "name": "avalon jquery uploader",
                     "module":"app/module/menuView/uploader/demo"
+                },
+                {
+                    "id": 38,
+                    "name": "百度Echarts",
+                     "module":"app/module/menuView/echarts/demo"
                 }
             ]
         },
@@ -51,10 +56,6 @@
                     "id": 11,
                     "name": "我的任务",
                     "subMenu": [
-                        {
-                            "id": 111,
-                            "name": "活动任务"
-                        },
                         {
                             "id": 112,
                             "name": "外呼任务"

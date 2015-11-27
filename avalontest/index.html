@@ -84,10 +84,19 @@
 			jstat: 'app/assets/lib/jstat/jstat',
 			'jquery.ui.widget' : 'app/assets/lib/uploader/js/vendor/jquery.ui.widget',
 			jqtransport : 'app/assets/lib/uploader/js/jquery.iframe-transport',
-			jqUploader : 'app/assets/lib/uploader/js/jquery.fileupload'
+			jqUploader : 'app/assets/lib/uploader/js/jquery.fileupload',
+			echarts : 'app/assets/lib/echarts/echarts-all',
+			jsonFormater : 'app/assets/lib/jsonFormater/jsonFormater'
 		},
 		waitSeconds:0,
 		shim:{
+			echarts:{
+				exports: ['echarts'],
+				init: function () {
+					return echarts;
+				}
+			},
+			ztree:["jquery",'css!app/assets/lib/ztree/css/zTreeStyle/zTreeStyle.css'],
 			jstat: {
 				exports: ['j$', 'jStat'],
 				init: function () {
@@ -97,7 +106,14 @@
 					};
 				}
 			},
-			jqUploader :["jquery","jquery.ui.widget","jqtransport"]
+			jqUploader :["jquery","jquery.ui.widget","jqtransport"],
+			jsonFormater :{
+				deps:["jquery","css!app/assets/lib/jsonFormater/jsonFormater.css"],
+				exports: ['jsonFormater'],
+				init: function () {
+					return JsonFormater;
+				}
+			}
 		},
 		baseUrl : "" ,
 		urlArgs: buildurlArgs
