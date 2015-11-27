@@ -47,6 +47,7 @@ define(['avalon','config','text!app/module/menuView/echarts/demo.html','echarts'
         } ,
         function(vm,el){  //destroy
            vm.echartsIns.dispose();
+           delete vm.echartsIns;
         } 
     );
 
