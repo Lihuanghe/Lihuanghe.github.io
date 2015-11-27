@@ -27,16 +27,19 @@ define(['avalon','config','text!app/module/menuView/echarts/demo.html','echarts'
                         }
                     ]
                 };
+     wrapper.wrap('avabug', "<div style='height:400px;width:800px;background:green' />",function(vm,el){
 
-     wrapper.wrap('jsona', "<div id='json'> abc </div> ",function(vm,el){
+    });
+
+     wrapper.wrap('jsonformater', "<div />",function(vm,el){
             var jf = new jsonFormater({
-                dom : '#json'
+                dom : el
             }); // 创建对象
             jf.doFormat(JSON.stringify(vm.$model.wrapperOptions)); // 格式化json
             
     });
      
-     wrapper.wrap('echarts', "<div /> ",
+     wrapper.wrap('echarts', "<div style='height:400px;width:800px;background:red' /> ",
          function(vm,el){ //init
            var mychart = echarts.init(el); 
            mychart.setOption(vm.$model.wrapperOptions);
