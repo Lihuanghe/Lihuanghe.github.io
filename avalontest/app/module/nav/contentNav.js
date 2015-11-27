@@ -88,9 +88,12 @@
 						avalon.each(data,function(idx ,item){
 							model.initRouter(item);
 						});
-						avalon.history.start({
-							basepath: "/"
-						});
+						setTimeout(function(){
+							avalon.history.start({
+								basepath: "/"
+							});
+						},250);
+						
 						avalon.log('info init Router OK')
 					}
 				}
