@@ -17,8 +17,7 @@
 <link rel="stylesheet" href="app/assets/css/reset.css">
 <link rel="stylesheet" href="app/assets/css/common.css">
 <link rel="stylesheet" href="app/assets/css/layout.css">
-<link rel="stylesheet" href="app/assets/lib/easyui/easyui.css">
-<link rel="stylesheet" href="app/assets/lib/easyui/icon.css">
+
 <script src="app/requireconfig.js"></script>
 <script src="app/assets/lib/require/require.js"></script>
 </head>
@@ -97,6 +96,7 @@
 				}
 			},
 			ztree:["jquery",'css!app/assets/lib/ztree/css/zTreeStyle/zTreeStyle.css'],
+			easyui:{deps:['jquery','css!app/assets/lib/easyui/easyui.css' , 'css!app/assets/lib/easyui/icon.css']},
 			jstat: {
 				exports: ['j$', 'jStat'],
 				init: function () {
@@ -118,7 +118,7 @@
 		baseUrl : "" ,
 		urlArgs: buildurlArgs
 	});
-	require([ "avalon","jquery" , "app/js/main.js"], function(avalon,jquery,main) {
+	require([ "avalon", "app/js/main.js"], function(avalon,jquery,main) {
 		avalon.scan();
 		avalon.log('done!');
 	});

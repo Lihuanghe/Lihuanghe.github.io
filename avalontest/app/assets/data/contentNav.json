@@ -45,6 +45,11 @@
                     "id": 38,
                     "name": "百度Echarts",
                      "module":"app/module/menuView/echarts/demo"
+                },
+                {
+                    "id": 39,
+                    "name": "easyUILayout",
+                     "module":"app/module/menuView/easyLayout/demo"
                 }
             ]
         },

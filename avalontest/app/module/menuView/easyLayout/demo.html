@@ -1,0 +1,27 @@
+<div class="ms-controller" ms-controller="easyUIlayout">
+<button ms-on-click="showpanel('north')" > toggle north panel</button>
+<button ms-on-click="showpanel('south')" >toggle south panel</button>
+<button ms-on-click="showpanel('east')" >toggle east panel</button>
+<button ms-on-click="showpanel('west')" >toggle west panel</button>
+<button ms-on-click="showpanel('center')" >toggle center panel</button>
+    <h2>Complex Layout</h2>
+    <p>This sample shows how to create a complex layout.</p>
+    <div style="margin:20px 0;"></div>
+    <div id="layout" class="easyui-layout" style="width:700px;height:350px;">
+        <div ms-if="layout.north.show" ms-attr-data-options="{{layout.north.options}}" style="height:50px">
+          {{layout.north.content|html}}
+        </div>
+        <div ms-if="layout.south.show" ms-attr-data-options="{{layout.south.options}}" style="height:50px">
+         {{layout.south.content|html}}
+        </div>
+        <div  ms-if="layout.east.show" ms-attr-data-options="{{layout.east.options}}" title="East" style="width:180px;">
+           {{layout.east.content|html}}
+        </div>
+        <div  ms-if="layout.west.show" ms-attr-data-options="{{layout.west.options}}" title="West" style="width:100px;">
+		 {{layout.west.content|html}}
+        </div>
+        <div  ms-if="layout.center.show" ms-attr-data-options="{{layout.center.options}}" >
+        	 {{layout.center.content|html}}
+        </div>
+    </div>
+</div>
