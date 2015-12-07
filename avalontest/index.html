@@ -85,7 +85,9 @@
 			jqtransport : 'app/assets/lib/uploader/js/jquery.iframe-transport',
 			jqUploader : 'app/assets/lib/uploader/js/jquery.fileupload',
 			echarts : 'app/assets/lib/echarts/echarts-all',
-			jsonFormater : 'app/assets/lib/jsonFormater/jsonFormater'
+			jsonFormater : 'app/assets/lib/jsonFormater/jsonFormater',
+			"jquery.validator":'app/assets/lib/validator/jquery.validator',
+			validator: 'app/assets/lib/validator/local/zh-CN'
 		},
 		waitSeconds:0,
 		shim:{
@@ -97,6 +99,7 @@
 			},
 			ztree:["jquery",'css!app/assets/lib/ztree/css/zTreeStyle/zTreeStyle.css'],
 			easyui:{deps:['jquery','css!app/assets/lib/easyui/easyui.css' , 'css!app/assets/lib/easyui/icon.css']},
+			validator:{deps:['jquery','jquery.validator']},
 			jstat: {
 				exports: ['j$', 'jStat'],
 				init: function () {

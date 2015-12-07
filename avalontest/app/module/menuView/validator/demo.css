@@ -1,0 +1,6 @@
+.form-item {margin: .5em 0;}
+.form-item .label {display:block; margin:10px 0 2px; font-size:14px;}
+.form-item .n-invalid {border:1px solid #c00;}
+.form-item .n-invalid:focus {outline: none; border-color:#c00; box-shadow: 0 0 4px rgba(192,0,0,0.5);}
+
+.form-item button {padding:5px 20px; margin-top: 1em;}

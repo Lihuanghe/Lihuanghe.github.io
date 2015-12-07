@@ -50,6 +50,11 @@
                     "id": 39,
                     "name": "easyUILayout",
                      "module":"app/module/menuView/easyLayout/demo"
+                },
+                {
+                    "id": 310,
+                    "name": "jqueryValidator",
+                     "module":"app/module/menuView/validator/demo"
                 }
             ]
         },
