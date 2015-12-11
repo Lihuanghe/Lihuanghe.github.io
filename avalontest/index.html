@@ -70,7 +70,7 @@
 			css : 'app/assets/lib/css',
 			avalon : 'app/assets/lib/avalon/avalon.shim155',
 			jquery : 'app/assets/lib/jquery/jquery-1.11.3',
-			//jquery : 'app/assets/lib/jquery/1.9.0/jquery-1.9.0-min',
+			//jquery : 'http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min',
 			base64 : 'app/assets/lib/base64/jquery.base64',
 			mmRouter: 'app/assets/lib/mmRouter-0.5/mmRouter',
 			mmHistory:'app/assets/lib/mmRouter-0.5/mmHistory',
@@ -87,7 +87,9 @@
 			echarts : 'app/assets/lib/echarts/echarts-all',
 			jsonFormater : 'app/assets/lib/jsonFormater/jsonFormater',
 			"jquery.validator":'app/assets/lib/validator/jquery.validator',
-			validator: 'app/assets/lib/validator/local/zh-CN'
+			validator: 'app/assets/lib/validator/local/zh-CN',
+			weekcalendar: 'app/assets/lib/weekcalendar/jquery.weekcalendar',
+			'jquery.ui':'app/assets/lib/jqueryui/jquery-ui'
 		},
 		waitSeconds:0,
 		shim:{
@@ -100,6 +102,8 @@
 			ztree:["jquery",'css!app/assets/lib/ztree/css/zTreeStyle/zTreeStyle.css'],
 			easyui:{deps:['jquery','css!app/assets/lib/easyui/easyui.css' , 'css!app/assets/lib/easyui/icon.css']},
 			validator:{deps:['jquery','jquery.validator']},
+			'jquery.ui':{deps:['jquery','css!app/assets/lib/jqueryui/jquery-ui.css']},
+			weekcalendar:{deps:['jquery.ui','css!app/assets/lib/weekcalendar/jquery.weekcalendar.css']},
 			jstat: {
 				exports: ['j$', 'jStat'],
 				init: function () {

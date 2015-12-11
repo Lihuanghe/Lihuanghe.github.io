@@ -19,7 +19,7 @@ define(['avalon','jquery','config'],function(avalon,jquery,config){
 	 				_isLogin = true;
 	 			}
 	 			callback(data);
-	 		})
+	 		},'json')
 	 	};
 
 	 	this.logout=function(callback){

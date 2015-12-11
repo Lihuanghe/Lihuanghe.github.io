@@ -55,6 +55,11 @@
                     "id": 310,
                     "name": "jqueryValidator",
                      "module":"app/module/menuView/validator/demo"
+                },
+                {
+                    "id": 311,
+                    "name": "weekcalendar",
+                     "module":"app/module/menuView/weekcalendar/demo"
                 }
             ]
         },
