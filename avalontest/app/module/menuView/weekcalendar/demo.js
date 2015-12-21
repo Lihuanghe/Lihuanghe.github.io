@@ -1,4 +1,4 @@
-define(['text!app/module/menuView/weekCalendar/demo.html','weekcalendar'],
+define(['text!app/module/menuView/weekcalendar/demo.html','weekcalendar'],
 	function(viewHTML){
 	 
 // 定义视图模块
