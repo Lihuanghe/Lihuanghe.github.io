@@ -59,13 +59,13 @@ return {wrapper:wrapper};
 ###*这是斜体*,用两个*包起来
 
 这是超链接[李黄河的Blog](http://Lihuanghe.github.io)   文字尾的两个空格表示换行  
-[麻省理工（MIT）牛人解说数学体系](http://Lihuanghe.github.io/%E9%BA%BB%E7%9C%81%E7%90%86%E5%B7%A5%EF%BC%88MIT%EF%BC%89%E7%89%9B%E4%BA%BA%E8%A7%A3%E8%AF%B4%E6%95%B0%E5%AD%A6%E4%BD%93%E7%B3%BB.html)
+[麻省理工（MIT）牛人解说数学体系](http://Lihuanghe.github.io/math.html)
 
 * *1这是列表
 * *2这是列表
 * *3这是列表
 
-+ +这也是  
++ +这也是  `
 
 		 制制表符宽制表符宽制表符宽制表符
 		 宽表符宽
