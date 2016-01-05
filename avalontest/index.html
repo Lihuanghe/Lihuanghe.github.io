@@ -89,7 +89,9 @@
 			"jquery.validator":'app/assets/lib/validator/jquery.validator',
 			validator: 'app/assets/lib/validator/local/zh-CN',
 			weekcalendar: 'app/assets/lib/weekcalendar/jquery.weekcalendar',
-			'jquery.ui':'app/assets/lib/jqueryui/jquery-ui'
+			'jquery.ui':'app/assets/lib/jqueryui/jquery-ui',
+			mmRequest:'app/assets/lib/mmRequest/mmRequest',
+			mmPromise:'app/assets/lib/mmRequest/mmPromise'
 		},
 		waitSeconds:0,
 		shim:{
@@ -125,7 +127,7 @@
 		baseUrl : "" ,
 		urlArgs: buildurlArgs
 	});
-	require([ "avalon", "app/js/main.js"], function(avalon,jquery,main) {
+	require([ "avalon", "app/js/main.js","mmRequest"], function(avalon,main) {
 		avalon.scan();
 		avalon.log('done!');
 	});
