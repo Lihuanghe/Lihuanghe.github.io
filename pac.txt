@@ -276,6 +276,7 @@ var rules = [
   "|http://*2.bahamut.com.tw",
   "||baidu.jp",
   "||baixing.me",
+  "||catchen.me",
   "hen.bao.li",
   "||bannedbook.org",
   "bannedbook.org",
