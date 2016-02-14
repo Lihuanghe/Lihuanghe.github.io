@@ -4,6 +4,8 @@ title: "avalon与jQueryEasyUI混用"
 description: "asdfasdfasdfa"
 category: [MVVM] 
 tags: [avalon ,mvvm,EasyUI]
+theme :
+  name : twitter
 ---
 {% include JB/setup %}
 

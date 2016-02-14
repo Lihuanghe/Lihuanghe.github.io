@@ -4,6 +4,8 @@ title: '将一个正整数组分成N组,使每组的数字之和相近. '
 description: "算法, algorithm"
 category: algorithm
 tags: [algorithm]
+theme :
+  name : twitter
 ---
 {% include JB/setup %}
 

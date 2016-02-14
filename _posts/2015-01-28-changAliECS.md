@@ -4,6 +4,8 @@ title: "avalon与socket.io，搭建聊天系统"
 description: ""
 category: [MVVM] 
 tags: [avalon ,socket.io]
+theme :
+  name : twitter
 ---
 {% include JB/setup %}
 

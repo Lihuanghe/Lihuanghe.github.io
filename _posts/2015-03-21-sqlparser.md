@@ -4,6 +4,8 @@ title: "动态报表配置使用的Sql参数解析，及参数替换解析器"
 description: ""
 category: [sql ,parser] 
 tags: [sql ]
+theme :
+  name : twitter
 ---
 {% include JB/setup %}
 

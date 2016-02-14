@@ -5,8 +5,8 @@ description: ""
 category: 
 tags: []
 comments: true
-theme:
-  name:twitter
+theme :
+  name : twitter
 ---
 {% include JB/setup %}
 这是大标题

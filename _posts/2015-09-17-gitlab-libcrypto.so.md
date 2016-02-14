@@ -4,6 +4,8 @@ title: '服务器升级openssl后,bitnami-gitlab服务报错解决'
 description: "openssl, gitlab,git,动态库"
 category: gitlab
 tags: [gitlab,git]
+theme :
+  name : twitter
 ---
 {% include JB/setup %}
 
