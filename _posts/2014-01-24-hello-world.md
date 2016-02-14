@@ -57,7 +57,7 @@ return {wrapper:wrapper};
 })
 
 ```
-###*这是斜体*,用两个*包起来
+### *这是斜体*,用两个*包起来
 
 这是超链接[李黄河的Blog](http://Lihuanghe.github.io)   文字尾的两个空格表示换行  
 [麻省理工（MIT）牛人解说数学体系](http://Lihuanghe.github.io/math.html)
