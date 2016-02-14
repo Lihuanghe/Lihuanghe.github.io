@@ -22,12 +22,12 @@ gems:
 # so be sure to set them if your theme uses them.
 #
 lsi: false
- safe: true
- source: [your repo's top level directory]
- incremental: false
- highlighter: rouge
- gist:
-   noscript: false
+safe: true
+source: [your repo's top level directory]
+incremental: false
+highlighter: rouge
+gist:
+  noscript: false
    
 title :  李黄河BLOG
 tagline: Real Artists Ship
