@@ -1,7 +1,6 @@
 # This is the default format. 
 # For more see: https://github.com/mojombo/jekyll/wiki/Permalinks
 permalink: /:year/:month/:day/:title.html 
-relative_permalinks: true
 destination: ../localSite
 exclude: [".rvmrc", ".rbenv-version", "README.md", "Rakefile", "changelog.md"]
 auto: true
