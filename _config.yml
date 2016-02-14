@@ -11,6 +11,9 @@ kramdown:
   input:  GFM
   hard_wrap: false
   use_coderay: true
+gems:
+   - jekyll-coffeescript
+   - jekyll-paginate
 #markdown: redcarpet
 #redcarpet:
 #   extensions: ["no_intra_emphasis","fenced_code_blocks", "autolink", "tables", "strikethrough", "with_toc_data","superscript"]
@@ -18,6 +21,14 @@ kramdown:
 # Themes are encouraged to use these universal variables 
 # so be sure to set them if your theme uses them.
 #
+lsi: false
+ safe: true
+ source: [your repo's top level directory]
+ incremental: false
+ highlighter: rouge
+ gist:
+   noscript: false
+   
 title :  李黄河BLOG
 tagline: Real Artists Ship
 author :
