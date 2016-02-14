@@ -4,6 +4,8 @@ title: '关于新华文摘'
 description: "新华文摘"
 category: algorithm
 tags: [algorithm]
+theme :
+  name : twitter
 ---
 {% include JB/setup %}
 
