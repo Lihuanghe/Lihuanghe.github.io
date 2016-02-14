@@ -5,13 +5,13 @@ destination: ../localSite
 exclude: [".rvmrc", ".rbenv-version", "README.md", "Rakefile", "changelog.md"]
 auto: true
 pygments: true
-markdown: kramdown
-kramdown:
-  input:  GFM
-  use_coderay: true
-#markdown: redcarpet
-#redcarpet:
-#   extensions: ["no_intra_emphasis","fenced_code_blocks", "autolink", "tables", "strikethrough", "with_toc_data","superscript"]
+#markdown: kramdown
+#kramdown:
+#  input:  GFM
+#  use_coderay: true
+markdown: redcarpet
+redcarpet:
+   extensions: ["no_intra_emphasis","fenced_code_blocks", "autolink", "tables", "strikethrough", "with_toc_data","superscript"]
 
 # Themes are encouraged to use these universal variables 
 # so be sure to set them if your theme uses them.
