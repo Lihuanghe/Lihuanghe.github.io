@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<!--[if lt IE 7 ]><html class="ie6"><![endif]-->
+<!--[if IE 7 ]><html class="ie7"><![endif]-->
+<!--[if IE 8 ]><html class="ie8"><![endif]-->
+<!--[if IE 9 ]><html class="ie9"><![endif]-->
+<!--[if (gt IE 9)|!(IE)]><!-->
+<html>
+<!--<![endif]-->
+<!--STATUS OK -->	
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta name="renderer" content="webkit" />
+<meta http-equiv="X-UA-Compatible" content="IE=8,chrome=1" />
+<title>李黄河的avalon学习demo</title>
+
+
+<script type="text/javascript" src="ava147.js" ></script>
+
+</head>
+<body class="ms-controller" ms-controller="content-main">
+	<div  name="nodeType" >{{a}}</div>
+	<input name='nodeType' ms-duplex="b" ms-on-keyup="show" />
+<div  >{{b}}</div>
+</body>
+<script type="text/javascript">
+	
+	 var model = avalon.define({
+                $id: "content-main",
+                a:"ABC",
+                b:"测试",
+                show:function(){avalon.log(model.b)}
+			});
+
+	
+</script>
+</html>
