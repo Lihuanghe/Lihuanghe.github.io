@@ -12,7 +12,7 @@ var proxy = "PROXY 127.0.0.1:1080";
 
 var rules = [
 "assets-cdn.github.com",
-"||.githubusercontent.com",
+".githubusercontent.com/",
   "||lsxszzg.com",
   "||amplitude.com",
 "||yahoo.com",
