@@ -8,12 +8,14 @@ theme :
   name : twitter
 ---
 {% include JB/setup %}
-提供一个cockroachdb的设计说明翻译 ，(原文)[https://github.com/cockroachdb/cockroach/blob/master/docs/design.md]
+提供一个cockroachdb的设计说明翻译 ，[原文] [https://github.com/cockroachdb/cockroach/blob/master/docs/design.md]
 
 # About
 This document is an updated version of the original design documents
 by Spencer Kimball from early 2014.
+
 本文是对Spencer Kimball于2014年初写的原始设计文档的更新版。
+
 # Overview
 
 Cockroach is a distributed key:value datastore (SQL and structured
@@ -141,11 +143,11 @@ performance. For example, a triplicated (3-way replica) range could have
 each replica located on different:
 
 节点和它所提供的可访问range可以设置各种物理网络拓扑结构，使之兼顾可靠性和性能。比如一个range的三份副本可以位于不同的位置：
+
 -	一个server上的不同磁盘以容忍磁盘失效。
 -	一个机架的不同server上，以容忍server失效。
 -	一个数据中心的不同机架上，以容忍机架掉电，或者网络故障
 -	甚至不同的数据中心以容忍大范围的网络故障或者电力故障
-
 
 -   disks within a server to tolerate disk failures.
 -   servers within a rack to tolerate server failures.
@@ -164,6 +166,7 @@ proxies involved client work including key lookups and write buffering.
 
 为了支持不同的客户端使用，Cockroach客户端可使用protocol buffers 或者 JSON通过HTTPS连接到任意节点上去。
 被连接的节点代理客户端参与工作，包括key查找和写入缓冲。
+
 # Keys
 
 Cockroach keys are arbitrary byte arrays. If textual data is used in
@@ -206,6 +209,7 @@ wall time + ε (ε = 99th percentile clock skew).
 
 每个range都会保持一个小的内存缓存，缓存中记录着读取key时的最新时间戳，每当key被读取时都会更新这个缓存。最老时间戳的缓存条目会被删除，并适当的更新缓存低水位标记。
 如果一个新的range副本leader选举出来，会将缓存的低水位标记设置为当前时间 + ε (ε = 99%时钟漂移)
+
 # Lock-Free Distributed Transactions
 
 Cockroach provides distributed transactions without locks. Cockroach
