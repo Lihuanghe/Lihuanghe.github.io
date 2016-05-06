@@ -30,7 +30,7 @@ minimal configuration.
 
 Cockroach 是一个以支持 **ACID事务** 和 **多版本值** 为首要特性的分布式 Key:Value 数据库(SQL和结构化数据层的cockroach还没有被定义)。
 Cockroach 的第一设计目标是 **全球一致性和可靠性** ，就像它的名字一样。Cockroach目标是在无人工干预的情况下，以极小的中断时间容忍磁盘，主机，机架甚至 **数据中心失效** 。
-Cockroach了节点是对等的；其中一个设计目标是以最少配置实现 **无差别部署** .
+Cockroach的节点是对等的；其中一个设计目标是以最少配置实现 **无差别部署** .
 
 
 Cockroach implements a **single, monolithic sorted map** from key to
@@ -51,14 +51,14 @@ Japan, Australia }`).
 Cockroach 实现了一个 **单一的全局sorted map**，其key 和 value都是二进制串。Cockroach 是 **线性扩展** 的，理论上支持4E字节(4096PB，4096*1024TB)的数据。
 此Map由一个或者多个range组成，每个range都通过[RocksDB](http://rocksdb.org/)(一种优化版的LevelDB)存储在磁盘里。并且每个range都被复制到至少3个Cockroach Server上。
 Range是由一个Key范围区间来定义的。Range会被合并或者切分成固定的大小，此大小由一个全局配置的min-max区间设定的。Range的大小默认是 `64M`，这有利于range的快速切分与合并 ，并且利于在一个热点range里
-分配负载。Range复本旨在被设在不同的数据中心以保证存活性。
+分配负载。range副本旨在被存放在不同的数据中心以保证存活性。
 
 Single mutations to ranges are mediated via an instance of a distributed
 consensus algorithm to ensure consistency. We’ve chosen to use the
 [Raft consensus algorithm](https://raftconsensus.github.io); all consensus
 state is stored in RocksDB.
 
-对range的单一修改会通过[Raft consensus algorithm](https://raftconsensus.github.io),这个分布式一致性算法来保证数据一致性。所有的一致性状态都保存在RocksDB里。
+对range的单一修改会通过[Raft](https://raftconsensus.github.io)这个分布式一致性算法来保证数据一致性。所有的一致性状态都保存在RocksDB里。
 
 A single logical mutation may affect multiple key/value pairs. Logical
 mutations have ACID transactional semantics. If all keys affected by a
@@ -226,8 +226,8 @@ more complexity, is still highly performant (less so with contention), and has
 no anomalous conditions. Cockroach’s SSI implementation is based on ideas from
 the literature and some possibly novel insights.
 
-*SI* 比较简单，容易实现，并且性能很高，正确性也不错（除了极少数情况，如写偏序）。*SSI*  更为复杂，性能也很高（但随连接数越多而降低），并且没有异常情况会导致错误结果。
-Cockroach’s的SSI是基于一些文献的想法和一些可能是新的思路。
+*SI* 比较简单，容易实现，并且性能很高，正确性也不错（除了极少数情况，如写偏序）。*SSI*  更为复杂，性能也很高（但随连接数增多而降低），并且没有异常情况会导致错误结果。
+Cockroach的SSI实现是基于一些文献的想法和一些可能是完全创建新的想法。
 
 SSI is the default level, with SI provided for application developers
 who are certain enough of their need for performance and the absence of
