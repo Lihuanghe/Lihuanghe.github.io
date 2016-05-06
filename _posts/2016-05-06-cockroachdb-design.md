@@ -8,7 +8,7 @@ theme :
   name : twitter
 ---
 {% include JB/setup %}
-提供一个cockroachdb的设计说明翻译 ，[原文] [https://github.com/cockroachdb/cockroach/blob/master/docs/design.md]
+提供一个cockroachdb的设计说明翻译 ，[原文] (https://github.com/cockroachdb/cockroach/blob/master/docs/design.md)
 
 # About
 This document is an updated version of the original design documents
