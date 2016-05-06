@@ -288,10 +288,12 @@ the local HLC is attached.
 
 每一个cockroach都维持一个混合逻辑时钟(HLC) ，相关的论文[Hybrid Logical Clock paper](http://www.cse.buffalo.edu/tech-reports/2014-04.pdf).
 混合逻辑时钟将Logical Clock和物理时钟(wall time)联系起来，它使我们能够以较少的开销跟踪相关事件的因果关系，类似于矢量时钟。但在实践中，它更像是一个逻辑时钟：
-当一个节点接收到一个事件，它告知本地的HLC一个此事件发送者的时间戳，
+当一个节点接收到一个事件，它告知本地的HLC一个此事件发送者的时间戳，**这里不会翻了**
 
 For a more in depth description of HLC please read the paper. Our
 implementation is [here](https://github.com/cockroachdb/cockroach/blob/master/util/hlc/hlc.go).
+
+关于混合逻辑时钟(HLC)更深入的介绍请读 [这里](https://github.com/cockroachdb/cockroach/blob/master/util/hlc/hlc.go).
 
 Cockroach picks a Timestamp for a transaction using HLC time. Throughout this
 document, *timestamp* always refers to the HLC time which is a singleton
@@ -301,9 +303,15 @@ from another node is not only used to version the operation, but also updates
 the HLC on the node. This is useful in guaranteeing that all data read/written
 on a node is at a timestamp < next HLC time.
 
+Cockroach 使用HLC 获取一个事务的时间戳。 本文提及的所有 *时间戳* 都指的是HLC时间，HLC时间在每个节点上是都是单一的。
+HLC由节点上的每个读写事件进行更新， 并且HLC 时间总是大于等于（ >= ）现实时间。 从来自另一个cockroach节点的读写请求里获取的时间戳并不仅仅用来给操作打版本标识，
+同时也会更新本节点的HLC。这样的设计可以保证在一个节点上，所有的数据读写时间都小于下一个HLC时间。
+
 **Transaction execution flow**
 
 Transactions are executed in two phases:
+
+事务执行分为两个阶段：
 
 1. Start the transaction by writing a new entry to the system
    transaction table (keys prefixed by *\0tx*) with state “PENDING”. In
@@ -319,6 +327,11 @@ Transactions are executed in two phases:
    original candidate timestamp in the absence of read/write conflicts);
    the client selects the maximum from amongst all write timestamps as the
    final commit timestamp.
+
+1. 开始一个事务，向系统事务表（key以*\0tx*为前缀）新写一个记录，状态是“PENDING”。并行为每一个数据写一个“intent”值，作为事务的一部分。
+这些都是普通的 MVCC (多版本并发控制)值，通过附加的特殊flag来表明这个值将在事务本身提交以后被提交。此外，事务ID (由客户端选择的一个唯一的事务开始时间)也和“intent”值一起保存。
+当有事务冲突时，事务ID用来引用对应的事务表，和在相同的时间戳之间按顺序做出打破平局的决策。每个节点返回用于写入的时间戳（这是在没有读/写冲突时的原始候选人时间戳）;
+客户端在所有写时间戳中选择最大的作为最终提交时间戳。
 
 2. Commit the transaction by updating its entry in the system
    transaction table (keys prefixed by *\0tx*). The value of the
@@ -342,12 +355,21 @@ Transactions are executed in two phases:
 In the absence of conflicts, this is the end. Nothing else is necessary
 to ensure the correctness of the system.
 
+2. 提交一个事务，更新系统事务表（key以*\0tx*为前缀）中对应的记录。 提交记录中包含对应的候选人时间戳（必要时会增加，以适应任何新的阅读时间戳）。请注意此时事务
+已被认为是完全提交了，控制被重新交给客户端。在SI事务的场景中，增加提交时间戳以适应当前的读取者是完全可以接受的，事务将继续提交。
+然而对于SSI事务，候选人时间戳与提交时间戳之间有差距则必须重新开始事务（注：事务重启和中止不同，下面会讲）。
+事务提交后，所有的预写操作都会被并行的移除“intents”标识，在此完成之前，事务就已被认为是完全提交了，并且不会等待它把控制交返给事务协调器。
+
+在没有冲突时，事务就结束了。不需要再做什么就已经能保证系统正确性了。
+
 **Conflict Resolution**
 
 Things get more interesting when a reader or writer encounters an intent
 record or newly-committed value in a location that it needs to read or
 write. This is a conflict, usually causing either of the transactions to
 abort or restart depending on the type of conflict.
+
+当一个读事务与一个写事务同时作用于同一个记录，或者新提交的值正好位于它要读或写的记录上，事情就变得很有趣了，这就是一个冲突。通常根据不同的冲突类型会造成其中一个事务中止或者重启。
 
 ***Transaction restart:***
 
@@ -360,6 +382,11 @@ its commit timestamp has been pushed. The second case involves a transaction
 actively encountering a conflict, that is, one of its readers or writers
 encounter data that necessitate conflict resolution
 (see transaction interactions below).
+
+除非事务被另一个事务中止，事务重启通常是相对高效的一个行为类型。从影响来说，可以归纳成两种场景：
+第一个是上面提到的：一个SSI事务发现它正在提交一个已经被推送过的事务。
+第二种场景是涉及到一个事务积极地面对一个冲突：一个读事务或者写事务操作的数据是必须要解决冲突的。（请看下面的交叉事务）
+
 
 When a transaction restarts, it changes its priority and/or moves its
 timestamp forward depending on data tied to the conflict, and
@@ -374,6 +401,11 @@ transaction. Since most transactions will end up writing to the same keys,
 the explicit cleanup run just before committing the transaction is usually
 a NOOP.
 
+当一个事务重启时，它的优先级会改变，或者根据与之冲突的数据把它的时间戳向前移动，并重用之前的事务ID. 由于之前的事务可能已经提交了一些尚未提交的预写操作，这些预写的数据需要删除掉，
+以避免被新的事务包含进来。在新事物重新执行前要清除这些脏写，可以隐式的，通过对新事务中相同key的预写来清除；或者显示清除那些在新事务不存在的脏写。
+因为大多数的事务都会预写相同的key，所以在提交事务之前，显示清除操作通常只是一个空操作。
+
+
 ***Transaction abort:***
 
 This is the case in which a transaction, upon reading its transaction
@@ -384,9 +416,14 @@ dangling intents as they encounter them) but will make an effort to
 clean up after itself. The next attempt (if applicable) then runs as a
 new transaction with **a new tx id**.
 
+事务中止是当一个事务在读它的事务表记录时，发现它被中止了。这种情况，事物不能使用它所有的intents。事物会在这些intents被清除前返回控制权给客户端（其它的读事务和写事务
+会清除掉这些无主的intents），之后也会努力清除自已。下一次尝试（如果适用）使用新的事务ID开启一个新事务。
+
 ***Transaction interactions:***
 
 There are several scenarios in which transactions interact:
+
+有以下几种交叉事务场景：
 
 - **Reader encounters write intent or value with newer timestamp far
   enough in the future**: This is not a conflict. The reader is free
@@ -397,6 +434,10 @@ There are several scenarios in which transactions interact:
   reader finds an intent with a newer timestamp which the reader’s own
   transaction has written, the reader always returns that intent's value.
 
+- **读事务遇到一个预写或者带有一个足够新的将来的时间戳的值**：这并不是一个冲突。不须要特殊处理，因为随后它会读取一个旧版本的数据。
+回想一下，预写操作将以一个比候选者更大的时间戳提交事务；永远也不可能比候选者时间小。**边注**：如果一个SI的读事务发现一个intent具有比自己更新的时间戳，则总是
+返回新intent的值。
+  
 - **Reader encounters write intent or value with newer timestamp in the
   near future:** In this case, we have to be careful. The newer
   intent may, in absolute terms, have happened in our read's past if
@@ -408,6 +449,10 @@ There are several scenarios in which transactions interact:
   this is optimized further; see the details under "choosing a time
   stamp" below.
 
+- **读事务遇到一个预写或者带有一个稍新的将来的时间戳的值**：这种情况，我们就得小心了。
+如果写事务的时钟在此节点接受value之前，新的intent很有可能是发生成我们读之前。这种情况下，我们需要考虑这个值，但是目前还不知道要不要考虑。
+因此要使用一个将来的时间戳重启事务（但是记得使用一个最大时间戳将不确定窗口限制到最大时钟偏差）。
+  
 - **Reader encounters write intent with older timestamp**: the reader
   must follow the intent’s transaction id to the transaction table.
   If the transaction has already been committed, then the reader can
