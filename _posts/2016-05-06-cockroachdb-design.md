@@ -25,6 +25,7 @@ machine, rack, and even **datacenter failures** with minimal latency
 disruption and **no manual intervention**. Cockroach nodes are
 symmetric; a design goal is **homogeneous deployment** (one binary) with
 minimal configuration.
+
 Cockroach 是一个以支持 **ACID事务** 和 **多版本值** 为首要特性的分布式 Key:Value 数据库(SQL和结构化数据层的cockroach还没有被定义)。
 Cockroach 的第一设计目标是 **全球一致性和可靠性** ，就像它的名字一样。Cockroach目标是在无人工干预的情况下，以极小的中断时间容忍磁盘，主机，机架甚至 **数据中心失效** 。
 Cockroach了节点是对等的；其中一个设计目标是以最少配置实现 **无差别部署** .
@@ -44,6 +45,7 @@ hotspots within a key range. Range replicas are intended to be located
 in disparate datacenters for survivability (e.g. `{ US-East, US-West,
 Japan }`, `{ Ireland, US-East, US-West}`, `{ Ireland, US-East, US-West,
 Japan, Australia }`).
+
 Cockroach 实现了一个 **单一的全局sorted map**，其key 和 value都是二进制串。Cockroach 是 **线性扩展** 的，理论上支持4E字节(4096PB，4096*1024TB)的数据。
 此Map由一个或者多个range组成，每个range都通过[RocksDB](http://rocksdb.org/)(一种优化版的LevelDB)存储在磁盘里。并且每个range都被复制到至少3个Cockroach Server上。
 Range是由一个Key范围区间来定义的。Range会被合并或者切分成固定的大小，此大小由一个全局配置的min-max区间设定的。Range的大小默认是 `64M`，这有利于range的快速切分与合并 ，并且利于在一个热点range里
@@ -53,6 +55,7 @@ Single mutations to ranges are mediated via an instance of a distributed
 consensus algorithm to ensure consistency. We’ve chosen to use the
 [Raft consensus algorithm](https://raftconsensus.github.io); all consensus
 state is stored in RocksDB.
+
 对range的单一修改会通过[Raft consensus algorithm](https://raftconsensus.github.io),这个分布式一致性算法来保证数据一致性。所有的一致性状态都保存在RocksDB里。
 
 A single logical mutation may affect multiple key/value pairs. Logical
@@ -61,6 +64,7 @@ logical mutation fall within the same range, atomicity and consistency
 are guaranteed by Raft; this is the **fast commit path**. Otherwise, a
 **non-locking distributed commit** protocol is employed between affected
 ranges.
+
 一个逻辑修改可能会影响到多个key:value对。逻辑修改具备ACID事务语义。如果一个逻辑修改影响的所有的key都位于同一个range,由Raft来保证原子性和一致性，这就是 **fast commit path**。
 否则，采用 **non-locking distributed commit** 协议来修改被影响的range.
 
@@ -74,6 +78,7 @@ contentious system. SSI is the default isolation; clients must
 consciously decide to trade correctness for performance. Cockroach
 implements [a limited form of linearizability](#linearizability),
 providing ordering for any observer or chain of observers.
+
 Cockroach 提供[快照隔离](http://en.wikipedia.org/wiki/Snapshot_isolation) (SI) 和 串行快照隔离 (SSI) 语义，此语义允许 **外部一致性、无锁读写** 。
 两者都基于历史快照时间戳和当前时间。SI提供无锁读写但是会有写偏序问题(由于每个事务在更新过程中无法看到其他事务的更改的结果，导致各个事务提交之后的最终结果违反了一致性);
 SSI消除了写偏序，但在有争议系统的某些场景下会损失性能。SSI是默认的隔离机制。客户端必须有意识的处理好正确性和高效性。Cockroach以有限线性化来支持任意顺序的观察者和观察者链。
@@ -86,6 +91,7 @@ This allows replication factor, storage device type, and/or datacenter
 location to be chosen to optimize performance and/or availability.
 Unlike Spanner, zones are monolithic and don’t allow movement of fine
 grained data on the level of entity groups.
+
 类似于[Spanner](http://static.googleusercontent.com/media/research.google.com/en/us/archive/spanner-osdi2012.pdf)的目录，Cockroach可以配置任意Zone的数据。可以设置复制因子，
 存储设备类型，或者数据中心位置来适应不同的性能和可用性要求。与Spanner不同的是，zones是单片的，不允许在实体group层面进行细粒度的移动。
 
@@ -114,6 +120,7 @@ key-value data. Ranges are replicated using the Raft consensus protocol.
 The diagram below is a blown up version of stores from four of the five
 nodes in the previous diagram. Each range is replicated three ways using
 raft. The color coding shows associated range replicas.
+
 每一个store都可能包含很多range. range是最底层的key:value数据单元。Ranges通过Raft一致性协议进行复制。下图是上一张图中5个节点其中4个节点的store示意图。每个range都使用Raft协议复制3份。
 相同颜色表示是相同的range副本。
 
@@ -124,6 +131,7 @@ raft. The color coding shows associated range replicas.
 Each physical node exports a RoachNode service. Each RoachNode exports
 one or more key ranges. RoachNodes are symmetric. Each has the same
 binary and assumes identical roles.
+
 每一个物理节点都包含一个RoachNode服务，每个RoachNode服务都包含多个key range. 每个RoachNode是对等的。每个 RoachNode都有相同的二进制数据和相同的角色.
 
 
@@ -145,6 +153,7 @@ each replica located on different:
 -   servers in different datacenters to tolerate large scale network or power outages.
 
 Up to `F` failures can be tolerated, where the total number of replicas `N = 2F + 1` (e.g. with 3x replication, one failure can be tolerated; with 5x replication, two failures, and so on).
+
 假如总的副本数是 `N = 2F + 1` ,则最高容忍 `F` 个失败（以3个副本来说，可容忍一个失效；5个副本则可容忍2个失效，等等）。
 
 # Cockroach ClientRoachNode
@@ -152,6 +161,7 @@ Up to `F` failures can be tolerated, where the total number of replicas `N = 2F 
 In order to support diverse client usage, Cockroach clients connect to
 any node via HTTPS using protocol buffers or JSON. The connected node
 proxies involved client work including key lookups and write buffering.
+
 为了支持不同的客户端使用，Cockroach客户端可使用protocol buffers 或者 JSON通过HTTPS连接到任意节点上去。
 被连接的节点代理客户端参与工作，包括key查找和写入缓冲。
 # Keys
@@ -164,6 +174,7 @@ or `\0\0`) for system tables, or take the form of
 `<user-key><system-suffix>` to sort user-key-range specific system
 keys immediately after the user keys they refer to. Null characters are
 used in system key prefixes to guarantee that they sort first.
+
 Cockroach keys可以是任意byte数组。如果使用文本数据做为key,建议使用utf-8进行编码（这将有利于在在调试工具中显示）。
 
 
@@ -182,6 +193,7 @@ Cockroach通过保存commit时间戳来保存多历史版本的值。可以通�
 
 Versioned values are supported via modifications to RocksDB to record
 commit timestamps and GC expirations per key.
+
 多版本值是通过修改每个key的rocksdb记录的提交时间戳和GC到期时来实现的。
 
 Each range maintains a small (i.e. latest 10s of read timestamps),
@@ -191,12 +203,14 @@ is read. The cache’s entries are evicted oldest timestamp first, updating
 the low water mark of the cache appropriately. If a new range replica leader
 is elected, it sets the low water mark for the cache to the current
 wall time + ε (ε = 99th percentile clock skew).
+
 每个range都会保持一个小的内存缓存，缓存中记录着读取key时的最新时间戳，每当key被读取时都会更新这个缓存。最老时间戳的缓存条目会被删除，并适当的更新缓存低水位标记。
 如果一个新的range副本leader选举出来，会将缓存的低水位标记设置为当前时间 + ε (ε = 99%时钟漂移)
 # Lock-Free Distributed Transactions
 
 Cockroach provides distributed transactions without locks. Cockroach
 transactions support two isolation levels:
+
 Cockroach提供无锁的分布式事务，Cockroach事务支持两种隔离级别：
 
 - snapshot isolation (SI) and
@@ -251,6 +265,7 @@ distributed nodes, the candidate timestamp may be increased, but will
 never be decreased. The core difference between the two isolation levels
 SI and SSI is that the former allows the transaction's candidate
 timestamp to increase and the latter does not.
+
 在一个事务跨多个节点的情况下，候选人时间戳只能增长，不能后退。SI 和 SSI 两个隔离级别的核心不同点在于前者允许事务的候选人时间戳增长，而后者不允许。
 
 **Hybrid Logical Clock**
@@ -266,6 +281,7 @@ overhead. In practice, it works much like other logical clocks: When events
 are received by a node, it informs the local HLC about the timestamp supplied
 with the event by the sender, and when events are sent a timestamp generated by
 the local HLC is attached.
+
 每一个cockroach都维持一个混合逻辑时钟(HLC) ，相关的论文[Hybrid Logical Clock paper](http://www.cse.buffalo.edu/tech-reports/2014-04.pdf).
 混合逻辑时钟将Logical Clock和物理时钟(wall time)联系起来，它使我们能够以较少的开销跟踪相关事件的因果关系，类似于矢量时钟。但在实践中，它更像是一个逻辑时钟：
 当一个节点接收到一个事件，它告知本地的HLC一个此事件发送者的时间戳，
