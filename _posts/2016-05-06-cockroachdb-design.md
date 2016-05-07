@@ -517,6 +517,10 @@ transaction completion. If a transaction commits successfully, all intents
 are upgraded to committed. In the event a transaction is aborted, all written
 intents are deleted. The client proxy doesn’t guarantee it will resolve intents.
 
+事务通过客户代理（类似微软SQL Azure的网关）进行管理，不像Spanner那样把写操作都缓存起来, cockroack会把写请求直接发送给所有关联的range. 这样当遇到定冲突时能够快速中止
+事务。客户代理为了在事务完成时异步解析预写(write intent)，会保存所有操作的key。当事务成功提交后，所有的预写都会被更新成已提交状态。如果事务被中止，所有的预写都将被删除。
+客户代理不保证它会解析intent.
+
 In the event the client proxy restarts before the pending transaction is
 committed, the dangling transaction would continue to live in the
 transaction table until aborted by another transaction. Transactions
@@ -532,11 +536,16 @@ An exploration of retries with contention and abort times with abandoned
 transaction is
 [here](https://docs.google.com/document/d/1kBCu4sdGAnvLqpT-_2vaTbomNmX3_saayWEGYu1j7mQ/edit?usp=sharing).
 
+当pending状态的事务提交前，如果客户代理重启了，那么这些无主的事务将会继续留在事务表中，直到有其它事务中止它。事务与事务表默认每5s秒钟保持一次心跳。
+当读操作或者写操作遇到无心跳的无主intent时会中止事务。
+当事务已提交但尚未完成异步处理时，如果客户代理重启了，那么这些无主intent将被后来的读或者写操作更新。无主intent是否被及时处理并不影响系统正确性。
+
 **Transaction Table**
 
 Please see [roachpb/data.proto](https://github.com/cockroachdb/cockroach/blob/master/roachpb/data.proto) for the up-to-date structures, the best entry point being `message Transaction`.
 
 **Pros**
+
 
 - No requirement for reliable code execution to prevent stalled 2PC
   protocol.
@@ -557,7 +566,17 @@ Please see [roachpb/data.proto](https://github.com/cockroachdb/cockroach/blob/ma
   (for example: make OLTP transactions 10x less likely to abort than
   low priority transactions, such as asynchronously scheduled jobs).
 
+  
+- 不依赖代码执行的可靠性来防止 2PC 协议陷入停滞
+- SI语义事务读操作不会阻塞；SSI语议事务读操作会中止
+- 比两阶段事务提交协议的时延更低。因为第二阶只需要写一次事务表。而不需要等待所有事务参数者。
+- 以事务优先级来防止长事务的饥饿等待。总是从相争的事务中（且不能相互中止）选择优胜者。
+- 写操作快速失败，在不客户端缓存
+- 与其它SSI实现相比，cockroach的SSI没有read-locking开销
+- 精心挑选的（即较少的随机）优先级可以灵活地保证任意事务的低时延（如：使用OLTP事务中止的可能性比**异步调度任务**这种低优先级事物小10倍）
+  
 **Cons**
+
 
 - Reads from non-leader replicas still require a ping to the leader to
   update *read timestamp cache*.
@@ -573,6 +592,11 @@ Please see [roachpb/data.proto](https://github.com/cockroachdb/cockroach/blob/ma
   two phase locking. Aborts and retries increase read and write
   traffic, increase latency and decrease throughput.
 
+- 从non-leader副本读取仍然需要ping leader以更新 *read timestamp cache*
+- 在一个事务心跳区间（默认5s）,已丢弃的事务有可能仍然阻塞相应的写操作.虽然平均的等待时间可能已相当小。这与检测并重启两阶段事物以释放读锁或者写锁相比，已经相当的高效了。
+- 与其它SI实现行为不同：先提交的写并不一定先执行，短事务不一定总是先完成。这对一些OLTP系统来说，可能用问题。
+- 对于有竞争的系统，与两阶段锁相比，中止事务可能降低系统吞吐量。因为中止和重启会增加读写的通信量，从而降低时延，减少系统吞吐能力。
+  
 **Choosing a Timestamp**
 
 A key challenge of reading data in a distributed system with clock skew
@@ -580,10 +604,15 @@ is choosing a timestamp guaranteed to be greater than the latest
 timestamp of any committed transaction (in absolute time). No system can
 claim consistency and fail to read already-committed data.
 
+在一个存在时间漂移的分布式系统中，对于读操作来说，如何保证能选出一个比任何事务提交时间（指现实时间）都大的时间戳，是一个重要的挑战。
+没有系统可以同时保证一致性，且不能读取已提交的数据。
+
 Accomplishing consistency for transactions (or just single operations)
 accessing a single node is easy. The timestamp is assigned by the node
 itself, so it is guaranteed to be at a greater timestamp than all the
 existing timestamped data on the node.
+
+在一个节点上实现事务（或者单一的操作）的一致性比较容易。因为数据时间戳是单节点自己产生的，不存在时种漂移，所以容易保证生成一个比所有已有数据时间戳都大的时间戳。
 
 For multiple nodes, the timestamp of the node coordinating the
 transaction `t` is used. In addition, a maximum timestamp `t+ε` is
@@ -594,6 +623,10 @@ cause the transaction to abort and retry with the conflicting timestamp
 t<sub>c</sub>, where t<sub>c</sub> \> t. The maximum timestamp `t+ε` remains
 the same. This implies that transaction restarts due to clock uncertainty
 can only happen on a time interval of length `ε`.
+
+在多节点上，一个节点上相应的事务时间戳`t`已被使用了，而且，对已提交的数据来说，`t+ε` 是节点所能提供的最大的时间戳的上限(`ε` 是最大时间漂移)。
+当处理事务时，对任何时间戳大于`t`且小于`t+ε`的数据的读操作都会引起事务中止，并且以稍大的时间戳t<sub>c</sub> （t<sub>c</sub> \> t）进行重试。
+最大时间戳`t+ε`保持相同。这意味着，由于时钟的不确定性，事务只能以长度为`ε`的时间间隔进行重启。
 
 We apply another optimization to reduce the restarts caused
 by uncertainty. Upon restarting, the transaction not only takes
