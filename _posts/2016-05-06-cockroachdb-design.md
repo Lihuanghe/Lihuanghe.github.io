@@ -450,8 +450,8 @@ There are several scenarios in which transactions interact:
   stamp" below.
 
 - **读事务遇到一个预写或者带有一个稍新的将来的时间戳的值**：这种情况，我们就得小心了。
-如果写事务的时钟在此节点接受value之前，新的intent很有可能是发生成我们读之前。这种情况下，我们需要考虑这个值，但是目前还不知道要不要考虑。
-因此要使用一个将来的时间戳重启事务（但是记得使用一个最大时间戳将不确定窗口限制到最大时钟偏差）。
+如果写事务的时钟在此节点接收value的时间之前，新的intent很有可能发生在我们读之前。这种情况下，我们可能需要考虑这个值，但是目前无法判断。
+因此要使用一个将来的时间戳重启事务（但是记得使用一个最大时间戳将不确定窗口限制到最大时钟偏差）。事实上，这是下一步优化。
   
 - **Reader encounters write intent with older timestamp**: the reader
   must follow the intent’s transaction id to the transaction table.
@@ -471,6 +471,12 @@ There are several scenarios in which transactions interact:
   a new priority `max(new random priority, conflicting txn’s
   priority - 1)`.
 
+- ** 读事务遇到一个早前的预写 ** ：读事务必须跟踪这个intent在事务表中的事务ID。 如果事务已经提交过了可直接读取数据。反之尚未提交，则有两种选择：
+如果写冲突来自一个SI事务，读事务可以 *将些事务的提交时间戳延后*（因此也不必去读它）。比较简单的做法是：读事务在事务提交时更新一下事务时间戳即可，当然，*至少*要使用一个更晚的时间戳。
+但如果这是一个SSI事务，读事务就必须比较优先级。如里读有更高的优先级，就直接推送它的事务时间戳（此事务稍后会因时间戳已被推送而重启）。如果读事务的优先级低于或等于写的，
+则使用新的优先级`max(new random priority, conflicting txn’s  priority - 1)`重试.
+
+
 - **Writer encounters uncommitted write intent**:
   If the other write intent has been written by a transaction with a lower
   priority, the writer aborts the conflicting transaction. If the write
@@ -478,11 +484,16 @@ There are several scenarios in which transactions interact:
   priority *max(new random priority, conflicting txn’s priority - 1)*;
   the retry occurs after a short, randomized backoff interval.
 
+- **写事务遇到另一个事务的预写**：如果预写来自另一个优先级更低事务，此事务会中止与之冲突的事务。反之另一个事务的优先级更高，或者相同，此事务使用新的优先级 *max(new random priority, conflicting txn’s priority - 1)*
+在随机延迟一点时间后重试。
+  
 - **Writer encounters newer committed value**:
   The committed value could also be an unresolved write intent made by a
   transaction that has already committed. The transaction restarts. On restart,
   the same priority is reused, but the candidate timestamp is moved forward
   to the encountered value's timestamp.
+  
+- **写事务遇到新的已提交的值**： 这个已提交的值有可能是一个已提交事务产生的无主预写，此时会使用相同的优先级重启事务，但事务的候选人时间戳会被向前移动到这个新提交值的时间戳。
 
 - **Writer encounters more recently read key**:
   The *read timestamp cache* is consulted on each write at a node. If the write’s
@@ -491,6 +502,9 @@ There are several scenarios in which transactions interact:
   timestamp later than the write’s candidate timestamp, this later timestamp
   value is returned with the write. A new timestamp forces a transaction
   restart only if it is serializable.
+
+- **读事务遇到一个最近刚读的key** : 一个节点上所有的写事务都会查询 *read timestamp cache* 。如果写事物的候选人时间戳比缓存中的低水位标记更早（如最近刚过期的时间戳），或者
+如果正在写的key的读时间戳比候选人时间戳更晚，则给写操作返回具有更晚时间戳的值，这个新的更晚的时间戳会强制串行事务重启。
 
 **Transaction management**
 
