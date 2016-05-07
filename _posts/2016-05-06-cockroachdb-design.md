@@ -741,8 +741,8 @@ This guarantee is broad enough to completely cover all cases of explicit
 causality, in addition to covering any and all imaginable scenarios of implicit
 causality.
 
-Spanner的外部一致性被称为**线性化**。它通过保存外部过程与数据库相互作用的因果关系信息超越了串行化。Spanner的承诺优点如下：任意两个过程，在预期范围内的时钟偏移下，
-可以独立记录他们事务完成的真实时间T<sub>1</sub> (T<sub>1</sub><sup>end</sup>) 和事务开始时间T<sub>2</sub> (T<sub>2</sub><sup>start</sup>)。如果以后比较的结果是 T<sub>1</sub><sup>end</sup> \< T<sub>2</sub><sup>start</sup>,
+Spanner的外部一致性保证被称为**线性化**。它通过保存外部过程与数据库相互作用的因果关系信息超越了串行化。Spanner的承诺优点如下：任意两个过程，在预期范围内的时钟偏移下，
+可以独立记录已完成事务T<sub>1</sub> (T<sub>1</sub><sup>end</sup>) 和刚开始的事务T<sub>2</sub> (T<sub>2</sub><sup>start</sup>)的真实时间。如果以后比较的结果是 T<sub>1</sub><sup>end</sup> \< T<sub>2</sub><sup>start</sup>,
 则可推出提交时间s<sub>1</sub> \< s<sub>2</sub>. 这个保证足以完全覆盖明确因果关系的所有情况，同时也可以覆盖所有能想出来的因果关系不明的情况。
 
 Our contention is that causality is chiefly important from the
