@@ -638,6 +638,11 @@ marked as “certain”. Then, for future reads to that node within the
 transaction, we set `MaxTimestamp = Read Timestamp`, preventing further
 uncertainty restarts.
 
+我们使用另一种优化来减少这种不确定性引起的事务重启。当重启开始时，事务不仅要考虑t<sub>c</sub> ， 也要考虑当产生 `the uncertain read` 时的节点时间 t<sub>node</sub> .
+t<sub>c</sub> 和 t<sub>node</sub> (可能是后者)中更大的时间戳将被用来增加读时间戳。此外，冲突的节点被标记为  “certain” ，然后，这个节点上以后的的读事务将被设置`MaxTimestamp = Read Timestamp`，
+来防止进一步不确定性造成重启。
+
+
 Correctness follows from the fact that we know that at the time of the read,
 there exists no version of any key on that node with a higher timestamp than
 t<sub>node</sub>. Upon a restart caused by the node, if the transaction
@@ -649,6 +654,10 @@ restarts attributed to a node to at most one. The tradeoff is that we might
 pick a timestamp larger than the optimal one (> highest conflicting timestamp),
 resulting in the possibility of a few more conflicts.
 
+正确性来自以下事实：我们知道当读操作刚开始时，节点上没有任何key的版本有比t<sub>node</sub>更大的时间戳。当节点的事务重启时，如果事务遇到一个具有更大时间戳的key时，
+它就会知道，在现实时间上，这个值是在t<sub>node</sub>时间之后被写的，比如是在`the uncertain read`之后的。因此，该事务可以向前移动读到一个旧版本的数据（位于该事务的时间戳）。
+这将时间不确定的重启限定于最多一个节点。但却以选择一个比最优时间(> highest conflicting timestamp)更大的时间戳做为交换，这有可能造成更多的冲突。
+
 We expect retries will be rare, but this assumption may need to be
 revisited if retries become problematic. Note that this problem does not
 apply to historical reads. An alternate approach which does not require
@@ -659,7 +668,13 @@ potentially limiting. Cockroach could also potentially use a global
 clock (Google did this with [Percolator](https://www.usenix.org/legacy/event/osdi10/tech/full_papers/Peng.pdf)),
 which would be feasible for smaller, geographically-proximate clusters.
 
-# Linearizability
+我们预计重试将是罕见的，但如果重试会引入新的问题，我们可能需要重新审视这种假设。注意，这个问题不适用于读历史（historical reads）。
+另一个不需求要重试的方法是：预先对所有参与的节点进行一次轮循，并选择所有节点中，最大的真实时间做为时间戳。然而，想预先知道哪个节点将被选中是很困难的，而且存在潜在的限制。
+Cockroach 当然也可以，且可能使用全球时钟 （就像google那样 [Percolator](https://www.usenix.org/legacy/event/osdi10/tech/full_papers/Peng.pdf) ）.
+使用那种规模小一点，地理上接近的全球时钟也是可行的.
+
+# Linearizability 
+线性化
 
 First a word about [***Spanner***](http://research.google.com/archive/spanner.html).
 By combining judicious use of wait intervals with accurate time signals,
@@ -674,6 +689,10 @@ the clock skew uncertainty interval to commit (`2ε`). See [*this
 article*](http://www.cs.cornell.edu/~ie53/publications/DC-col51-Sep13.pdf)
 for a helpful overview of Spanner’s concurrency control.
 
+先介绍一点[***Spanner***](http://research.google.com/archive/spanner.html)的内容。通过结合精确的时间信号，使用合理的等待时间间隔，Spanner在任何两个非重叠的事务之间，以大约\~14ms的时延，提供全球有序性。
+换句话说：Spanner 确保如果一个事务T<sub>1</sub>在另一个事务T<sub>2</sub>开始之前提交了，则T<sub>1</sub>的时间戳一定比T<sub>2</sub>的时间戳小。通过使用原子钟和GPS信号，
+Spanner将时钟漂移的减小到10ms (`ε`)以下。为此保证，事务必须有两倍的时钟漂移时间间隔(`2ε`)才能提交。想了解更多Spanner’的一致性控制，可以看这个 [*this article*](http://www.cs.cornell.edu/~ie53/publications/DC-col51-Sep13.pdf)
+
 Cockroach could make the same guarantees without specialized hardware,
 at the expense of longer wait times. If servers in the cluster were
 configured to work only with NTP, transaction wait times would likely to
@@ -681,6 +700,16 @@ be in excess of 150ms. For wide-area zones, this would be somewhat
 mitigated by overlap from cross datacenter link latencies. If clocks
 were made more accurate, the minimal limit for commit latencies would
 improve.
+
+Cockroach可以在没有特殊硬件的情况下得到和Spanner一样的承诺，只是要花费更长的等待时间。如果服务器集群只使用NTP进行时间同步，事务可能要等待超过150ms。
+对于大面积的区域，这会随跨数据中心的链路延迟重叠而有所减轻。如果时钟更精确，提交延迟的最小限度也会减小。
+
+然后，让我们退后一步，评估下Spanner的外部一致性保证是否值得自动提交等待。首先，如果完全忽略提交等待，系统仍然可以在任意时间产生一个一致的Map视图。
+但因为存在时钟漂移，则可能先后提交两个时间上不重叠的事务，但在事实上先后顺序完全相反。换句话说，下面场景，对于一个客户端来说，在没有全局有序的保证下是完全有可能的。
+
+-   开始事务T<sub>1</sub> 用来修改`x` ，提交时间是s<sub>1</sub>
+-   T<sub>1</sub>提交时，开启一个事务修改`y` ，提交时间是s<sub>2</sub>
+-   同时读`x` 和 `y` ，发现s<sub>1</sub> \> s<sub>2</sub> (**!**)
 
 However, let’s take a step back and evaluate whether Spanner’s external
 consistency guarantee is worth the automatic commit wait. First, if the
@@ -712,12 +741,19 @@ This guarantee is broad enough to completely cover all cases of explicit
 causality, in addition to covering any and all imaginable scenarios of implicit
 causality.
 
+Spanner的外部一致性被称为**线性化**。它通过保存外部过程与数据库相互作用的因果关系信息超越了串行化。Spanner的承诺优点如下：任意两个过程，在预期范围内的时钟偏移下，
+可以独立记录他们事务完成的真实时间T<sub>1</sub> (T<sub>1</sub><sup>end</sup>) 和事务开始时间T<sub>2</sub> (T<sub>2</sub><sup>start</sup>)。如果以后比较的结果是 T<sub>1</sub><sup>end</sup> \< T<sub>2</sub><sup>start</sup>,
+则可推出提交时间s<sub>1</sub> \< s<sub>2</sub>. 这个保证足以完全覆盖明确因果关系的所有情况，同时也可以覆盖所有能想出来的因果关系不明的情况。
+
 Our contention is that causality is chiefly important from the
 perspective of a single client or a chain of successive clients (*if a
 tree falls in the forest and nobody hears…*). As such, Cockroach
 provides two mechanisms to provide linearizability for the vast majority
 of use cases without a mandatory transaction commit wait or an elaborate
 system to minimize clock skew.
+
+我们的争论点是，因果关系是从一个单一的客户端的角度来看，还是从连续的客户链的角度来看，哪一种才是重要的 (*如果一棵树倒在森林中，却没有人听到...*)。
+大多数使用场景是没有强制性的事务提交等待，或者没有一个为减小时钟漂移而精心设计的系统，Cockroach因此为这些场景提供了两种机制来提供线性化。
 
 1. Clients provide the highest transaction commit timestamp with
    successive transactions. This allows node clocks from previous
