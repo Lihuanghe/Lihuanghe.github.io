@@ -873,6 +873,16 @@ A really good reference on tuning Linux installations with RocksDB is
 Cockroach节点为每一块磁盘维护一个单独的RocksDB实例。每个RocksDB实例保存有若干个ranges。到达一个RoachNode节点上的RPCs会被复用到适当RocksDB实例。
 每个磁盘一个实例可以防止竞争。如果每个range都维持一个RocksDB，就不可能管理一个全局可用的缓存，且每个range的写操作将竞争非连续写入多个RocksDB日志。
 
+除了range自已的key:value 对，也保存了各种range的元数据。
+
+-   range-spanning tree node links
+
+-   participating replicas
+
+-   consensus metadata
+
+-   split/merge activity
+
 
 # Range Metadata
 
