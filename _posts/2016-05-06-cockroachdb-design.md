@@ -358,7 +358,7 @@ to ensure the correctness of the system.
 2. 提交一个事务，更新系统事务表（key以*\0tx*为前缀）中对应的记录。 提交记录中包含对应的候选人时间戳（必要时会增加，以适应任何新的阅读时间戳）。请注意此时事务
 已被认为是完全提交了，控制被重新交给客户端。在SI事务的场景中，增加提交时间戳以适应当前的读取者是完全可以接受的，事务将继续提交。
 然而对于SSI事务，候选人时间戳与提交时间戳之间有差距则必须重新开始事务（注：事务重启和中止不同，下面会讲）。
-事务提交后，所有的预写操作都会被并行的移除“intents”标识，在此完成之前，事务就已被认为是完全提交了，并且不会等待它把控制交返给事务协调器。
+事务提交后，所有的预写操作都会被并行的移除“intents”标识，在此完成之前，事务就已被认为是完全提交了，并且不会等待它把控制交返给事务协调者。
 
 在没有冲突时，事务就结束了。不需要再做什么就已经能保证系统正确性了。
 
@@ -769,6 +769,14 @@ system to minimize clock skew.
    All causally-related events within Cockroach maintain
    linearizability.
 
+1. 客户端用连续的事务提供最大的事务提交时间戳。这使得节点可以根据之前事务的时间戳，快速的制定当前事务的提交时间戳。这保证了从此客户端上提交的事务的线性化。
+新的客户端启动后在开启第一个事务之前，至少要等待2\*ε的时间，即使客户端重新启动，也会保留相同的属性，并且等待将通过进程初始化来减轻。所有有因果关系的事件在Cockroach都保持线性化
+
+2. 已提交的事务会响应一个提交等待(commit wait)参数，该参数用来表示离额定的提交等待时间还有多久。此参数作为与事务协调者的达成的写共识(the consensus write)的一部份，这通常会比整个提交等待的时间短。
+客户端在Cockroach事务之外执行的任何任务（如，往另一个分布式系统组件写数据）可以选择：在开始处理之前等剩余的 `commit wait`时间用完；或者选择将剩余的等待时间和提交时间戳
+作为参数传给该任务，供其参考。这虽然将线性化交给了客户端来保证，但对于一个时钟漂移较大的系统来说，这却是一个减少事务提交时延的利器。当面临有反向通道依赖（backchannel dependencies）[AugmentedTime](http://www.cse.buffalo.edu/~demirbas/publications/augmentedTime.pdf) 时
+此功能可用于解决的排序问题。
+   
 2. Committed transactions respond with a commit wait parameter which
    represents the remaining time in the nominal commit wait. This
    will typically be less than the full commit wait as the consensus
@@ -792,7 +800,12 @@ T<sub>2</sub> (T<sub>2</sub><sup>start</sup>) after the completion of
 transaction T<sub>1</sub> (T<sub>1</sub><sup>end</sup>), will have commit
 timestamps such thats<sub>1</sub> \< s<sub>2</sub>.
 
+在有提交等的地方使用这些机制。Cockroach可以保证：对任意处理过程，如果其中一个新开始的事务T<sub>2</sub> (T<sub>2</sub><sup>start</sup>) 晚于另一个已完成的事务T<sub>1</sub> (T<sub>1</sub><sup>end</sup>)，
+则其时间戳必然满足s<sub>1</sub> \< s<sub>2</sub>.
+
 # Logical Map Content
+
+逻辑上，Map 在非系统数据的实际key:value对之前，会包含一系列的系统保留的key:value对，包括统计，range的元数据和节点统计.如：
 
 Logically, the map contains a series of reserved system key / value
 pairs covering accounting, range metadata and node accounting 
@@ -831,6 +844,8 @@ There are some additional system entries sprinkled amongst the
 non-system keys. See the Key-Prefix Accounting section in this document
 for further details.
 
+还有一些附加的系统条目之间的非系统keys. 进一步了解细节，可以参考Key-Prefix Accounting章节。
+
 # Node Storage
 
 Nodes maintain a separate instance of RocksDB for each disk. Each
@@ -854,6 +869,10 @@ metadata is maintained.
 
 A really good reference on tuning Linux installations with RocksDB is
 [here](http://docs.basho.com/riak/latest/ops/advanced/backends/leveldb/).
+
+Cockroach节点为每一块磁盘维护一个单独的RocksDB实例。每个RocksDB实例保存有若干个ranges。到达一个RoachNode节点上的RPCs会被复用到适当RocksDB实例。
+每个磁盘一个实例可以防止竞争。如果每个range都维持一个RocksDB，就不可能管理一个全局可用的缓存，且每个range的写操作将竞争非连续写入多个RocksDB日志。
+
 
 # Range Metadata
 
