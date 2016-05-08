@@ -844,7 +844,7 @@ There are some additional system entries sprinkled amongst the
 non-system keys. See the Key-Prefix Accounting section in this document
 for further details.
 
-还有一些附加的系统条目之间的非系统keys. 进一步了解细节，可以参考Key-Prefix Accounting章节。
+还有一些附加在非系统keys之间的系统条目. 进一步了解细节，可以参考Key-Prefix Accounting章节。
 
 # Node Storage
 
