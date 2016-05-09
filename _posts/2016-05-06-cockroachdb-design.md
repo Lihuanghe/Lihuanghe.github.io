@@ -895,6 +895,9 @@ B would require roughly 4G (2\^32 B) to store--too much to duplicate
 between machines. Our conclusion is that range metadata must be
 distributed for large installations.
 
+一个range默认是64M (2\^26 B), 要支持1PB(2\^50 B)的数据大概需要2\^(50 - 26) = 2\^24  = 16M个range。一个元数据最大256字节是比较合理的（其中3\*12字节用来保存3个节点的位置，余下220字节保存此range自已的key）。
+2\^24 = 16M 个range,每个256字节大概就需要4G (2\^32 B)字节，这太大了而不能在主机间进行复制。我们的结论是，对于很大的集群,range的元数据必须是分布式的。
+
 To keep key lookups relatively fast in the presence of distributed metadata,
 we store all the top-level metadata in a single range (the first range). These
 top-level metadata keys are known as *meta1* keys, and are prefixed such that
@@ -906,6 +909,10 @@ second, and the second addresses user data. With two levels of indirection, we
 can address 2\^(18 + 18) = 2\^36 ranges; each range addresses 2\^26 B, and
 altogether we address 2\^(36+26) B = 2\^62 B = 4E of user data.
 
+因为元数据是分布式保存的，为了保证key的查找效率，我们把所有顶层的元数据保存在一个range里（第一个range）. 这些顶层的元数据的key是 *meta1* ,用这样的前缀让它们排在key空间的前边。
+前边说过了一个元数据是256字节，一个64M的range可以保存 2\^18  = 256K个range的元数据，总共可以提供64M \* 2\^18 =16T的存储空间。为了提供1P的存储空间，我们需要两级寻址（两级索引 ，第一级用来保存第二级的地址，第二级用来保存数据）。
+采用两级寻址，我们就可以支持2\^(18 + 18) = 64G个range, 每个range支持寻址2\^26 B = 64M ，则总共可寻址2\^(36+26) B = 2\^62 B = 4E 的数据空间.
+
 For a given user-addressable `key1`, the associated *meta1* record is found
 at the successor key to `key1` in the *meta1* space. Since the *meta1* space
 is sparse, the successor key is defined as the next key which is present. The
@@ -913,9 +920,15 @@ is sparse, the successor key is defined as the next key which is present. The
 found using the same process. The *meta2* record identifies the range
 containing `key1`, which is again found the same way (see examples below).
 
+对于一个用户给定的`key1` ,其对应的 *meta1* 记录位于第一个range(rang0)上一个叫做 *successor key* 的key上，因为*meta1*的空间是稀疏的，*successor key*就成为了下一个已存在的key. *meta1* 记录了*meta2* 记录所在的range.
+*meta2* record 则记录了`key1`所在的range.
+
+
 Concretely, metadata keys are prefixed by `\0\0meta{1,2}`; the two null
 characters provide for the desired sorting behaviour. Thus, `key1`'s
 *meta1* record will reside at the successor key to `\0\0\meta1<key1>`.
+
+具体上是：key的元数据以  `\0\0meta{1,2}` 为前缀。 以两个\0\0开头是为了满足我们的排序要求。`key1`的元数据 *meta1* 会被保存在 `\0\0\meta1<key1>` 这个key上，即上面说的*successor key*.
 
 Note: we append the end key of each range to meta{1,2} records because
 the RocksDB iterator only supports a Seek() interface which acts as a
@@ -923,6 +936,11 @@ Ceil(). Using the start key of the range would cause Seek() to find the
 key *after* the meta indexing record we’re looking for, which would
 result in having to back the iterator up, an option which is both less
 efficient and not available in all cases.
+
+注意： 我们在元数据记录上追加保存每个range的最后一个key ， 是因为 RocksDB的迭代器只提供一个Seek()接口，功能类似Ceil() (上向取整)。 如果保存range的第一个key, 当使用seek()查询元数据上的key时，...,
+不方便，且效率不高。
+
+下面展示一个有三个range的元数据索引结构。省略号表示跟后边的key/value对一样。只有切分range时需要更新range的元数据，需要知道元数据的分布信息，其它情况都不用管它。
 
 The following example shows the directory structure for a map with
 three ranges worth of data. Ellipses indicate additional key/value pairs to
@@ -952,6 +970,8 @@ the range metadata itself requires no special treatment or bootstrapping.
 - ...
 - `<lastkey2>`: `<lastvalue2>`
 
+如果一个range很小，不足一个range上限，所有的元数据都会位于相同的range里。
+
 Consider a simpler example of a map containing less than a single
 range of data. In this case, all range metadata and all data are
 located in the same range:
@@ -963,6 +983,8 @@ located in the same range:
 - `\0\0meta2\xff`: `dcrama1:8000`, `dcrama2:8000`, `dcrama3:8000`
 - `<key0>`: `<value0>`
 - `...`
+
+最终，如果数据足够大，两层索引看起来像这个( 这里没有写range副本，只简单写了range的编号) :
 
 Finally, a map large enough to need both levels of indirection would
 look like (note that instead of showing range replicas, this
@@ -1007,6 +1029,10 @@ example is simplified to just show range indexes):
 - ...
 - `<lastkeyN+1>`: `<lastvalueN+1>`
 
+上面range `262144` 近似值。一个元数据range 真正可寻址的范围依赖于key的大小。如果key的size足够小，可寻址范围会增加，反之亦然。
+
+通过上面的例子，寻址一个key最多需要3次read，就可获取`<key>`对应的value.
+
 Note that the choice of range `262144` is just an approximation. The
 actual number of ranges addressable via a single metadata range is
 dependent on the size of the keys. If efforts are made to keep key sizes
@@ -1020,6 +1046,9 @@ most three reads to get the value for `<key>`:
 2. lower bound of `\0\0meta2<key>`,
 3. `<key>`.
 
+对于很小的map, 可以在Range 0上一次RPC调用内完成所有查询。 16T以下的Map需要2次。客户端缓存整个range元数据, 我们希望客户端的数据局部性越高越好。客户端可能
+有过期的条目。 在一次查询中，如果range没有达到客户端的期望，客户端就会删除该过期条目，并发起一个新的查询.
+
 For small maps, the entire lookup is satisfied in a single RPC to Range 0. Maps
 containing less than 16T of data would require two lookups. Clients cache both
 levels of range metadata, and we expect that data locality for individual
@@ -1028,6 +1057,7 @@ lookup, the range consulted does not match the client’s expectations, the
 client evicts the stale entries and possibly does a new lookup.
 
 # Raft - Consistency of Range Replicas
+Raft - range副本的一致性
 
 Each range is configured to consist of three or more replicas, as specified by
 their ZoneConfig. The replicas in a range maintain their own instance of a
