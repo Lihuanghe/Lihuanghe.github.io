@@ -115,7 +115,7 @@ structured data API 反过来取决于 [distributed key value store](#key-value-
 在任意物理cockroach节点间通信。每个物理节点包含一个或多个store。
 
 
-![Architecture](media/architecture.png)
+![Architecture](/media/architecture.png)
 
 Each store contains potentially many ranges, the lowest-level unit of
 key-value data. Ranges are replicated using the Raft consensus protocol.
@@ -128,7 +128,7 @@ raft. The color coding shows associated range replicas.
 
 
 
-![Ranges](media/ranges.png)
+![Ranges](/media/ranges.png)
 
 Each physical node exports a RoachNode service. Each RoachNode exports
 one or more key ranges. RoachNodes are symmetric. Each has the same
@@ -1295,7 +1295,7 @@ associated range-spanning tree:
 
 R0: `aa - cc`, R1: `*cc - lll`, R2: `*lll - llr`, R3: `*llr - nn`, R4: `*nn - rr`, R5: `*rr - ssss`, R6: `*ssss - sst`, R7: `*sst - vvv`, R8: `*vvv - zzzz`.
 
-![Range Tree](media/rangetree.png)
+![Range Tree](/media/rangetree.png)
 
 The range-spanning tree has many beneficial uses in Cockroach. It
 provides a ready made solution to scheduling mappers and sorting /
