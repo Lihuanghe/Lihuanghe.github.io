@@ -11,7 +11,7 @@ theme :
 
 这是一个webpack打包的配置文件例子，已在在线公司生产上使用。代码是 avalon + webpack的单页应用。
 
-```
+```javascript
 /**
  * Created by Lihuanghe on 16/4/21.
  */
