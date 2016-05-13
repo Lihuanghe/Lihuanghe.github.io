@@ -1068,6 +1068,9 @@ covering important details.
 promising performance characteristics for WAN-distributed replicas, but
 it does not guarantee a consistent ordering between replicas.
 
+根据ZoneConfig的配置，每个range都会包含3个或者更多的副本。 一个range里的副本会维护自己的分布式一致性算法实例。我们使用 [*Raft*](https://raftconsensus.github.io)，
+因为它足够简单，并且有一个包含重要的细节的参考实现。[ePaxos](https://www.cs.cmu.edu/~dga/papers/epaxos-sosp2013.pdf) 
+
 Raft elects a relatively long-lived leader which must be involved to
 propose commands. It heartbeats followers periodically and keeps their logs
 replicated. In the absence of heartbeats, followers become candidates
@@ -1077,6 +1080,9 @@ shorter round trip times to peers are more likely to hold elections
 first (not implemented yet). Only the Raft leader may propose commands;
 followers will simply relay commands to the last known leader.
 
+Raft 选举一个相对长寿的leader来提交指令 ，leader会与follower会保持周期性心跳，并让follower保存log的副本. 如果心跳消失，在经过随机的election timeouts时间，follower成为候选人(candidates) ,
+并且继续发起新的leader选举过程。Cockroach使用随机时间，这样通信往返时间短的会更易第一个发起选举。只有leader才能提交指令，followers只简单地传递命令到最后一个已知的领导者。
+
 Our Raft implementation was developed together with CoreOS, but adds an extra
 layer of optimization to account for the fact that a single Node may have
 millions of consensus groups (one for each Range). Areas of optimization
@@ -1085,6 +1091,9 @@ number of heartbeats as opposed to the much larger number of ranges) and
 batch processing of requests.
 Future optimizations may include two-phase elections and quiescent ranges
 (i.e. stopping traffic completely for inactive ranges).
+
+Cockroach的Raft实现在CoreOS的基础上，增加额外的优化层，因为考虑到一个节点可能有几百万的一致性组（每个range一个）。少部分优化主要是合并心跳（与数量巨大的range相反，节点数量决定了心跳的数量）和
+请求批处理。将来的优化还包括二阶段选举和静态range.
 
 # Range Leadership (Leader Leases)
 
@@ -1104,6 +1113,21 @@ Requests received by a non-leader (for the HLC timestamp specified in the
 request's header) fail with an error pointing at the replica's last known
 leader. These requests are retried transparently with the updated leader by the
 gateway node and never reach the client.
+
+像上面Raft概述里说的，一个range的副本作为一个Raft组来执行共享commit log 里的指令. 通过Raft实现一致性是一个昂贵的操作，且有些任务同一时刻只能在一个副本里进行处理。因此，
+Cockroach将介绍一些**Range Leadership**概念： 这是一个时间片的租约，通过Raft算法提交的一个特殊的log 条目建立的，包含了leadership活跃的时间间隔，和Node:RaftID的组合，该组合
+用来表示唯一一个正在请求的副本。读请求和写请求必须寻址到撑握此租约的副本上。如果无法寻址到，就可能寻址到任意的副本上，获取请求的副本将尝试同步获取此租约。
+由non-leader接收的请求失败后，将抛出一个指向副本最后一个leader的错误信息。这些请求将通过网关节点透明的发给新leader进行重试，客户端毫无感知。
+
+持有租约的副本将处理一些特殊range的维护任务，如：
+
+* 通报第一个range的信息
+* 拆分，合并，平衡range
+
+并且，非常重要的，可以满足本地读取，而不引起Raft的开销.
+
+如果通过Raft读取时，持有租约的副本还要确定它缓存的时间戳必须大于上一个有持有租约的副本（因为这样才能兼容发生在上一个leader上的读操作）。
+这是通过把timestamp cache的低水位标记设置成先前租约期满加上最大时钟漂移完成的。
 
 The replica holding the lease is in charge or involved in handling
 Range-specific maintenance tasks such as
@@ -1139,6 +1163,11 @@ stipulation to the lease holder's replica to start Raft elections (unless it's
 already leading), though some care should be taken that Range leadership is
 relatively stable and long-lived to avoid a large number of Raft leadership
 transitions.
+
+Range领导和Raft 领导是完全独立的，所以没有进一步的努力，Raft 和 Range的领导将不大可能由同一个副本来代表。这是很方便，因为语义上它分离这两种类型的领导，并允许使Raft作为一个“黑匣子”来使用。
+但因为性能的原因，让一个副本同时具有两种角色最好，否则通过Raft发送一个指令时，总是先提交给range leader，range leader再转发给raft leader , raft leader再进行提交并更新也包括range leader在内的其它follower range，,从而带来开销，
+这虽然产生正确的结果，但却会浪费几轮交互时间，所以得保证绝大多数情况，Raft 和 Range的领导都是一个副本。实现这一目标的一个相当简单的方法是：
+规定每一次延长或开始新的租约期限时，必须由租约持有者来发起raft选举（除非它是已经leader），还要注意要保证Range领导稳定且长期存活，来避免大量Raft领导转换。
 
 ## Command Execution Flow
 
