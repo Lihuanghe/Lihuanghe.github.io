@@ -1164,10 +1164,10 @@ already leading), though some care should be taken that Range leadership is
 relatively stable and long-lived to avoid a large number of Raft leadership
 transitions.
 
-Range领导和Raft 领导是完全独立的，所以没有进一步的努力，Raft 和 Range的领导将不大可能由同一个副本来代表。这是很方便，因为语义上它分离这两种类型的领导，并允许使Raft作为一个“黑匣子”来使用。
+Range Leader和Raft Leader是完全独立的，没有进一步的努力，Raft 和 Range的Leader将不大可能位于同一个副本。这很实用，因为语义上它分离这两种类型的领导，并允许使Raft作为一个“黑匣子”来使用。
 但因为性能的原因，让一个副本同时具有两种角色最好，否则通过Raft发送一个指令时，总是先提交给range leader，range leader再转发给raft leader , raft leader再进行提交并更新也包括range leader在内的其它follower range，,从而带来开销，
-这虽然产生正确的结果，但却会浪费几轮交互时间，所以得保证绝大多数情况，Raft 和 Range的领导都是一个副本。实现这一目标的一个相当简单的方法是：
-规定每一次延长或开始新的租约期限时，必须由租约持有者来发起raft选举（除非它是已经leader），还要注意要保证Range领导稳定且长期存活，来避免大量Raft领导转换。
+这虽然能产生正确的结果，但却会浪费几轮交互时间，所以得保证绝大多数情况，Raft 和 Range的leader都是一个副本。实现这一目标的一个相当简单的方法是：
+规定每一次延长或开始新的租约期限时，必须由租约持有者来发起raft选举（除非它是已经leader），还要注意要保证Range leader稳定且长期存活，来避免大量Raft leader转换。
 
 ## Command Execution Flow
 
@@ -1180,6 +1180,9 @@ responsible for the supplied keys. If any of the keys do not belong to the
 range, the RoachNode returns an error so that the client will retry
 and send a request to a correct range.
 
+这一章节详细介绍leader 副本是如何处理读写命令的。每一个命令都指明一个要处理的key(或者一个key的范围)和包含该key的range的ID. 当RoachNode收到一个命令时会根据rangID获取对应的range，并且检查
+这个range是否包含相应的keys. 如果不包含，RoachNode返回error,客户端收到error后继续重试直到找到正确的range.
+	
 When all the keys belong to the range, the RoachNode attempts to
 process the command. If the command is an inconsistent read-only
 command, it is processed immediately. If the command is a consistent
@@ -1190,11 +1193,21 @@ conditions hold:
 - There are no other running commands whose keys overlap with
 the submitted command and cause read/write conflict.
 
+当命令中的所有keys都包含在range中，RoachNode就开始执行命令。如果命令是一个非一致性的只读命令，会立即处理。如果是要求一致性的读写命令，只要满足以下两个条件，命令才被执行：
+
+-  该range必须是leader
+-  当前要读写的keys与正在处理的命令的keys不能有重叠。
+
 When the first condition is not met, the replica attempts to acquire
 a lease or returns an error so that the client will redirect the
 command to the current leader. The second condition guarantees that
 consistent read/write commands for a given key are sequentially
 executed.
+
+如果第一个条件不满足，副本尝试获取leader 租约(leader lease)，如未获取租约则给客户端返回error,客户端将命令发送给当前的leader.第二个条件保证对一个key的一致性读写命令被串行执行。
+
+如果两个条件都满足了，就开始处理命令。对于一致性的读命令，会立即在此节点上执行。一致性写命令会被提交到raft log里以便让每个副本都能执行这个命令。所有的命令都会产生确定的结果，所以
+range 的所有副本能保证一致性。
 
 When the above two conditions are met, the leader replica processes the
 command. Consistent reads are processed on the leader immediately.
@@ -1202,11 +1215,14 @@ Write commands are committed into the Raft log so that every replica
 will execute the same commands. All commands produce deterministic
 results so that the range replicas keep consistent states among them.
 
+当写命令执行完成，所有的副本更新他们的响应缓存以保证幂等性。当写命令执行完成，leader更新它的时间戳缓存以保存对此key的最新读时间。
+
 When a write command completes, all the replica updates their response
 cache to ensure idempotency. When a read command completes, the leader
 replica updates its timestamp cache to keep track of the latest read
 for a given key.
 
+当命令正在执行时，有可能leader租约期了。在执行命令之前，每个副本都要检查是否仍然持有租约。 如果租约到期了，命令会被拒绝。
 There is a chance that a leader lease gets expired while a command is
 executed. Before executing a command, each replica checks if a replica
 proposing the command has a still lease. When the lease has been
@@ -1215,10 +1231,17 @@ expired, the command will be rejected by the replica.
 
 # Splitting / Merging Ranges
 
+RoachNodes 根据他们是否超过容量或负荷的最大或最小阈值来决定拆分或者合并range.
+容量或负荷如果任意一个超过最大值就会拆分;如果都小于最小值则会合并。
+
 RoachNodes split or merge ranges based on whether they exceed maximum or
 minimum thresholds for capacity or load. Ranges exceeding maximums for
 either capacity or load are split; ranges below minimums for *both*
 capacity and load are merged.
+
+ranges 保存与key前缀相同的统计信息。形成一个具有分钟级粒度的数据点的时间序列。从字节数到读/写队列大小的所有信息。
+对这些统计信息进行分析可以做为拆分合并的依据。range 的大小和IOps这两个敏感指标被用来拆分合并。总的读写队列等待时间这个指标作为节点需要rebalance的依据。
+这些指标通过Gossip算法在每个range间传递。
 
 Ranges maintain the same accounting statistics as accounting key
 prefixes. These boil down to a time series of data points with minute
@@ -1231,12 +1254,18 @@ queue wait times. These metrics are gossipped, with each range / node
 passing along relevant metrics if they’re in the bottom or top of the
 range it’s aware of.
 
+range发现自己超过了阈值就拆分，为此，range leader会计算一个适当的候选key并通过raft协议进行拆分。与拆分对比，合并则需要range的容量和负载都必须小于阈值。
+被合并的range会从此range之前和之后的range中选择一个较小的进行合并。
+
 A range finding itself exceeding either capacity or load threshold
 splits. To this end, the range leader computes an appropriate split key
 candidate and issues the split through Raft. In contrast to splitting,
 merging requires a range to be below the minimum threshold for both
 capacity *and* load. A range being merged chooses the smaller of the
 ranges immediately preceding and succeeding it.
+
+range拆分，合并，平衡range 和恢复时，在节点间移动数据都遵循相同的基础算法。创建新的目标副本并添加到源range的副本集中，然后新的副本通过重放所有日志进行更新，或者通过copy一个源副本
+数据的快照并且重放快照日间以后的日志进行更新。一旦一个新副本已更新到最新状态，range元数据也更新完成，老的源副本就可能被删除。
 
 Splitting, merging, rebalancing and recovering all follow the same basic
 algorithm for moving data between roach nodes. New target replicas are
