@@ -1315,6 +1315,7 @@ total data falls below a configurable minimum threshold.
 range disappearing from the local node; that range needs to disappear
 gracefully, with a smooth handoff of operation to the new owner of its data.
 
+节点通过负载统计信息检查到其负载或容量是集群中最坏的一个，range会进行rebalanc，并且在同一个数据中心选择备用节点。
 Ranges are rebalanced if a node determines its load or capacity is one
 of the worst in the cluster based on gossipped load stats. A node with
 spare capacity is chosen in the same datacenter and a special-case split
@@ -1322,6 +1323,8 @@ is done which simply duplicates the data 1:1 and resets the range
 configuration metadata.
 
 # Range-Spanning Binary Tree
+
+
 
 A crucial enhancement to the organization of range metadata is to
 augment the bi-level range metadata lookup with a minimum spanning tree,
@@ -1372,6 +1375,10 @@ tasks.
 
 
 # Node Allocation (via Gossip)
+
+# 通过Gossip算法，分配新节点
+
+当rang拆分的时候必须要分配新的节点。cockroach使用gossip算法将新增节点状态信息通知到其它所有节点。
 
 New nodes must be allocated when a range is split. Instead of requiring
 every RoachNode to know about the status of all or even a large number
@@ -1431,6 +1438,7 @@ The gossip protocol itself contains two primary components:
   containing new items.
 
 # Node Accounting
+# 节点信息统计
 
 The gossip protocol discussed in the previous section is useful to
 quickly communicate fragments of important information in a
