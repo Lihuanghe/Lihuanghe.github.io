@@ -16,6 +16,7 @@ theme :
 # 总览
 	
 webpack整体是一个插件架构，所有的功能都以插件的方式集成在构建流程中，通过发布订阅事件来触发各个插件执行。webpack核心使用[Tapable](https://github.com/webpack/tapable) 来实现插件(`plugins`)的binding和applying.
+
 先整体来看一下webpack事件流：*通过在Tapable中打日志获得*
 
 ```
