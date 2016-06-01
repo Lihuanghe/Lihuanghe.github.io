@@ -11,11 +11,11 @@ theme :
 
 # 序言 
 
-    项目上在使用webpack，感叹真是神器，既然是神器，就想探知究竟。
+项目上在使用webpack，感叹真是神器，既然是神器，就想探知究竟。
 
 # 总览
 	
-    webpack整体是一个插件架构，所有的功能都以插件的方式集成在构建流程中，通过发布订阅事件来触发各个插件执行。webpack核心使用[Tapable] (https://github.com/webpack/tapable)来实现插件(`plugins`)的binding和applying.
+webpack整体是一个插件架构，所有的功能都以插件的方式集成在构建流程中，通过发布订阅事件来触发各个插件执行。webpack核心使用[Tapable] (https://github.com/webpack/tapable)来实现插件(`plugins`)的binding和applying.
 先整体来看一下webpack事件流：*通过在Tapable中打日志获得，*
 
 ```
@@ -119,14 +119,25 @@ theme :
 ```
 
 其中有几个关键节段对应的事件分别是：
+
 - entry-option 初始化option
+
 - run 开始编译
+
 - make 从entry开始递归的分析依赖，对每个依赖模块进行build
+
 - before-resolve - after-resolve    对其中一个模块位置进行解析
+
 - build-module 开始构建 (build) 这个module,这里将使用文件对应的loader加载
+
 - normal-module-loader 对用loader加载完成的module(是一段js代码)进行编译,用 acorn (https://github.com/ternjs/acorn) 编译,生成ast抽象语法树。
+
+
 - program 开始对ast进行遍历，当遇到require等一些调用表达式时，触发`call require`事件的handler执行，收集依赖，并。如：AMDRequireDependenciesBlockParserPlugin等
+
 - seal 所有依赖build完成，下面将开始对chunk进行优化，比如合并,抽取公共模块,加hash
+
 - bootstrap 生成启动代码
+
 - emit 把各个chunk输出到结果文件
 
