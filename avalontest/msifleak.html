@@ -1,0 +1,44 @@
+<html>
+<!--<![endif]-->
+<!--STATUS OK -->	
+
+<head>
+<script type="text/javascript" src="http://lihuanghe.github.io/avalontest/app/assets/lib/avalon/avalon.shim155.js"></script>
+ <meta charset="utf-8">
+</head>
+<body>
+<div class="ms-controller" ms-controller="leakvm">
+
+<button ms-on-click="changec"> change content </button>
+<label>选中后就会泄漏</label><input type="checkbox" ms-duplex-checked ="leak" />
+<br/>
+<div>ms-if leak</div>
+{{centent|html}}
+
+</div>
+</body>
+<script type="text/javascript">
+    var text = "<p>多点几次，查看ifGroup里会有未回收的节点</p>";
+    var leaktext = "<div ms-repeat=\"data\"><span ms-if-loop='el.b'> el.b</span><span ms-if-loop=\"1===0\" > el.c</span></div>";
+    var oktext = "<div ms-repeat=\"data\"><span ms-if-loop='el.b'> el.b</span><span ms-if-loop=\"el.notexist\" > el.c</span></div>";
+	var model = avalon.define({
+                $id: "leakvm",
+                centent:text,
+                tmp:text,
+                leak : false,
+                data : [{a:false,b:true},{a:false,b:true},{a:false,b:true},{a:false,b:true},{a:false,b:true},{a:false,b:true},{a:false,b:true},{a:false,b:true}],
+                changec:function(){
+                   
+                    if(model.centent === model.tmp){
+                     model.centent = model.leak?leaktext:oktext;
+                    }
+                    else{
+                     model.centent = model.tmp
+                    }
+                       
+                },
+                
+                       
+      });
+</script>
+</html>
