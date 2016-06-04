@@ -20,104 +20,105 @@ webpack整体是一个插件架构，所有的功能都以插件的方式集成�
 先整体来看一下webpack事件流：*通过在Tapable中打日志获得*
 
 ```
-         method          			 event-name
+         method                       event-name
 --------------------------------------------------
-applyPluginsBailResult				|   entry-option
-applyPlugins						|   after-plugins
-applyPlugins						|   after-resolvers
-applyPlugins						|   environment
-applyPlugins						|   after-environment
-applyPluginsAsyncSeries				|   run
-applyPlugins						|   normal-module-factory
-applyPlugins						|   context-module-factory
-applyPlugins						|   compile
-applyPlugins						|   this-compilation
-applyPlugins						|   compilation
-applyPluginsParallel				|   make
-applyPluginsAsyncWaterfall			|   before-resolve
-applyPluginsWaterfall				|   factory
-applyPluginsWaterfall				|   resolver
-applyPlugins						|   resolve
-applyPlugins						|   resolve-step
-applyPluginsParallelBailResult		|   file
-applyPluginsParallelBailResult		|   directory
-applyPlugins						|   resolve-step
-applyPluginsParallelBailResult		|   result
-applyPluginsAsyncWaterfall			|   after-resolve
-applyPluginsBailResult				|   create-module
-applyPluginsWaterfall				|   module
-applyPlugins						|   build-module
-applyPlugins						|   normal-module-loader
-applyPluginsBailResult				|   program
-applyPluginsBailResult				|   statement
-applyPluginsBailResult				|   evaluate MemberExpression
-applyPluginsBailResult				|   evaluate Identifier	document.write
-applyPluginsBailResult				|   call document.write
-applyPluginsBailResult				|   expression document.write
-applyPluginsBailResult				|   expression document
-applyPlugins						|   succeed-module
-applyPlugins						|   seal
-applyPlugins						|   optimize
-applyPlugins						|   optimize-modules
-applyPlugins						|   after-optimize-modules
-applyPlugins						|   optimize-chunks
-applyPlugins						|   after-optimize-chunks
-applyPluginsAsyncSeries				|   optimize-tree
-applyPlugins						|   after-optimize-tree
-applyPluginsBailResult				|   should-record
-applyPlugins						|   revive-modules
-applyPlugins						|   optimize-module-order
-applyPlugins						|   before-module-ids
-applyPlugins						|   optimize-module-ids
-applyPlugins						|   after-optimize-module-ids
-applyPlugins						|   record-modules
-applyPlugins						|   revive-chunks
-applyPlugins						|   optimize-chunk-order
-applyPlugins						|   before-chunk-ids
-applyPlugins						|   optimize-chunk-ids
-applyPlugins						|   after-optimize-chunk-ids
-applyPlugins						|   record-chunks
-applyPlugins						|   before-hash
-applyPlugins						|   hash
-applyPlugins						|   hash
-applyPlugins						|   hash
-applyPlugins						|   hash
-applyPlugins						|   hash-for-chunk
-applyPlugins						|   chunk-hash
-applyPlugins						|   after-hash
-applyPlugins						|   before-chunk-assets
-applyPluginsWaterfall				|   global-hash-paths
-applyPluginsBailResult				|   global-hash
-applyPluginsWaterfall				|   bootstrap
-applyPluginsWaterfall				|   local-vars
-applyPluginsWaterfall				|   require
-applyPluginsWaterfall				|   module-obj
-applyPluginsWaterfall				|   module-require
-applyPluginsWaterfall				|   require-extensions
-applyPluginsWaterfall				|   asset-path
-applyPluginsWaterfall				|   startup
-applyPluginsWaterfall				|   module-require
-applyPluginsWaterfall				|   render
-applyPluginsWaterfall				|   module
-applyPluginsWaterfall				|   render
-applyPluginsWaterfall				|   package
-applyPluginsWaterfall				|   modules
-applyPluginsWaterfall				|   render-with-entry
-applyPluginsWaterfall				|   asset-path
-applyPlugins						|   chunk-asset
-applyPlugins						|   additional-chunk-assets
-applyPlugins						|   record
-applyPluginsAsyncSeries				|   additional-assets
-applyPluginsAsyncSeries				|   optimize-chunk-assets
-applyPlugins						|   after-optimize-chunk-assets
-applyPluginsAsyncSeries				|   optimize-assets
-applyPlugins						|   after-optimize-assets
-applyPluginsAsyncSeries				|   after-compile
-applyPluginsBailResult				|   should-emit
-applyPluginsAsyncSeries				|   emit
-applyPluginsWaterfall				|   asset-path
-applyPluginsAsyncSeries				|   after-emit
-applyPlugins						|   done
+applyPluginsBailResult           |   entry-option
+applyPlugins                     |   after-plugins
+applyPlugins                     |   after-resolvers
+applyPlugins                     |   environment
+applyPlugins                     |   after-environment
+applyPluginsAsync                |   before-run
+applyPluginsAsyncSeries          |   run
+applyPlugins                     |   normal-module-factory
+applyPlugins                     |   context-module-factory
+applyPlugins                     |   compile
+applyPlugins                     |   this-compilation
+applyPlugins                     |   compilation
+applyPluginsParallel             |   make
+applyPluginsAsyncWaterfall       |   before-resolve
+applyPluginsWaterfall            |   factory
+applyPluginsWaterfall            |   resolver
+applyPlugins                     |   resolve
+applyPlugins                     |   resolve-step
+applyPluginsParallelBailResult   |   file
+applyPluginsParallelBailResult   |   directory
+applyPlugins                     |   resolve-step
+applyPluginsParallelBailResult   |   result
+applyPluginsAsyncWaterfall       |   after-resolve
+applyPluginsBailResult           |   create-module
+applyPluginsWaterfall            |   module
+applyPlugins                     |   build-module
+applyPlugins                     |   normal-module-loader
+applyPluginsBailResult           |   program
+applyPluginsBailResult           |   statement
+applyPluginsBailResult           |   evaluate MemberExpression
+applyPluginsBailResult           |   evaluate Identifier        document.write
+applyPluginsBailResult           |   call document.write
+applyPluginsBailResult           |   expression document.write
+applyPluginsBailResult           |   expression document
+applyPlugins                     |   succeed-module
+applyPlugins                     |   seal
+applyPlugins                     |   optimize
+applyPlugins                     |   optimize-modules
+applyPlugins                     |   after-optimize-modules
+applyPlugins                     |   optimize-chunks
+applyPlugins                     |   after-optimize-chunks
+applyPluginsAsyncSeries          |   optimize-tree
+applyPlugins                     |   after-optimize-tree
+applyPluginsBailResult           |   should-record
+applyPlugins                     |   revive-modules
+applyPlugins                     |   optimize-module-order
+applyPlugins                     |   before-module-ids
+applyPlugins                     |   optimize-module-ids
+applyPlugins                     |   after-optimize-module-ids
+applyPlugins                     |   record-modules
+applyPlugins                     |   revive-chunks
+applyPlugins                     |   optimize-chunk-order
+applyPlugins                     |   before-chunk-ids
+applyPlugins                     |   optimize-chunk-ids
+applyPlugins                     |   after-optimize-chunk-ids
+applyPlugins                     |   record-chunks
+applyPlugins                     |   before-hash
+applyPlugins                     |   hash
+applyPlugins                     |   hash
+applyPlugins                     |   hash
+applyPlugins                     |   hash
+applyPlugins                     |   hash-for-chunk
+applyPlugins                     |   chunk-hash
+applyPlugins                     |   after-hash
+applyPlugins                     |   before-chunk-assets
+applyPluginsWaterfall            |   global-hash-paths
+applyPluginsBailResult           |   global-hash
+applyPluginsWaterfall            |   bootstrap
+applyPluginsWaterfall            |   local-vars
+applyPluginsWaterfall            |   require
+applyPluginsWaterfall            |   module-obj
+applyPluginsWaterfall            |   module-require
+applyPluginsWaterfall            |   require-extensions
+applyPluginsWaterfall            |   asset-path
+applyPluginsWaterfall            |   startup
+applyPluginsWaterfall            |   module-require
+applyPluginsWaterfall            |   render
+applyPluginsWaterfall            |   module
+applyPluginsWaterfall            |   render
+applyPluginsWaterfall            |   package
+applyPluginsWaterfall            |   modules
+applyPluginsWaterfall            |   render-with-entry
+applyPluginsWaterfall            |   asset-path
+applyPlugins                     |   chunk-asset
+applyPlugins                     |   additional-chunk-assets
+applyPlugins                     |   record
+applyPluginsAsyncSeries          |   additional-assets
+applyPluginsAsyncSeries          |   optimize-chunk-assets
+applyPlugins                     |   after-optimize-chunk-assets
+applyPluginsAsyncSeries          |   optimize-assets
+applyPlugins                     |   after-optimize-assets
+applyPluginsAsyncSeries          |   after-compile
+applyPluginsBailResult           |   should-emit
+applyPluginsAsyncSeries          |   emit
+applyPluginsWaterfall            |   asset-path
+applyPluginsAsyncSeries          |   after-emit
+applyPlugins                     |   done
 ```
 
 其中有几个关键节段对应的事件分别是：
@@ -142,18 +143,30 @@ applyPlugins						|   done
 
 - emit 把各个chunk输出到结果文件
 
-# webpack关键数据结构
+# webpack的关键实体
 
 ![Webpack Class](/assets/images/webpack-module.png)
 
-## 模块 Module,RawModule,NormalModule ,MultiModule,ContextModule,DelegatedModule,LocalModule,DllModule,ExternalModule 等
+## 模块 
 
+`Module`,`RawModule`,`NormalModule` ,`MultiModule`,`ContextModule`,`DelegatedModule`,`LocalModule`,`DllModule`,`ExternalModule` 等
 Module是webpack的中的核心实体，要加载的一切和所有的依赖都是Module，总之一切都是Module。
 
-## 依赖 Dependency ,ModuleDependency,ContextDependency,AMDRequireDependency,CommonJsRequireDependency 等
+## 依赖 
 
+`Dependency` ,`ModuleDependency`,`ContextDependency`,`AMDRequireDependency`,`CommonJsRequireDependency` 等
 每一个依赖(Dependency)的实体都包含一个module字段，指向被依赖的Module. 这样通过Module的dependencies数组成员就能找出该模块所依赖的其它模块。
+webpack使用不同的Dependency子类，如`AMDRequireDependency` ，`AMDDefineDependency` ，`AMDRequireArrayDependency`，`CommonJsRequireDependency`，`SystemImportDependency`来表式不同的模块加载规范，
+通过对应的`DependencyParserPlugin`来加载  `AMD`或`CMD`的模块。 后面会专门讲不同`DependencyParserPlugin`的实现方式 。
 
-## 模块工厂 NormalModuleFactory,ContextModuleFactory , DllModuleFactory,MultiModuleFactory
+## 模块工厂
 
-使用工厂模式创建不同的Module
+ `NormalModuleFactory`,`ContextModuleFactory` , `DllModuleFactory`,`MultiModuleFactory`.使用工厂模式创建不同的Module
+
+# 调用过程
+
+webpack的实际入口是Compiler类的run方法， 在run方法里调用compile方法开始编译。在编译的时候会使用一个核心对象：`Compilation`.
+
+## Compilation
+
+
