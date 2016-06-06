@@ -19,8 +19,8 @@
 </body>
 <script type="text/javascript">
     var text = "<p>多点几次，查看ifGroup里会有未回收的节点</p>";
-    var leaktext = "<div ms-repeat=\"data\"><span ms-if-loop='el.b'> el.b</span><span ms-if-loop=\"1===0\" > el.c</span></div>";
-    var oktext = "<div ms-repeat=\"data\"><span ms-if-loop='el.b'> el.b</span><span ms-if-loop=\"el.notexist\" > el.c</span></div>";
+    var leaktext = "<div ms-repeat=\"data\"><span ms-if-loop='el.b'> {{el.b}} </span><span ms-if-loop=\"1===0\" > {{el.b}}</span></div>";
+    var oktext = "<div ms-repeat=\"data\"><span ms-if-loop='el.b'>{{el.b}} el.b</span><span ms-if-loop=\"1===0\" > {{el.b}}el.c</span><span ms-if-loop=\"el.notexist\" > {{el.b}}notexist</span></div>";
 	var model = avalon.define({
                 $id: "leakvm",
                 centent:text,

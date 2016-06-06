@@ -17,17 +17,12 @@ theme :
  */
 var path = require('path');
 var webpack = require("webpack");
+var CopyWebpackPlugin = require('copy-webpack-plugin'); 
 var ExtractTextPlugin = require("extract-text-webpack-plugin"); //将组件中的样式乖乖提取出来
 var HtmlWebpackPlugin = require('html-webpack-plugin'); //html模板插入代码
 
 //webpck插件
 var plugins = [
-  //提公用js到common.js文件中
-  new webpack.optimize.CommonsChunkPlugin({   
-            name: "vendor",//和上面配置的入口对应
-            filename: 'common.[chunkhash:8].js' ,//导出的文件的名称
-             children: true
-          }),
   new HtmlWebpackPlugin({
     title: "智能短信平台",
     inject:false,
@@ -49,12 +44,16 @@ var plugins = [
     "window.jQuery": "jquery",
     chart:'chart_ref',
     WdatePicker:'datepiker'
-  })
+  }),
+  //copy 插件
+  new CopyWebpackPlugin([
+      {from:'./app/assets/lib/datepiker/'},
+      {from:'./app/assets/lib/keditor/'}
+    ])
 ];
 
 var entry = {
-        entry: './app/entry.js',
-        vendor: ['avalon','jquery','base64','mmRouter','mmHistory','easyui','loading','pagination','blockUI','artDialog','dialog','wrapper','gloMap','ztree','ztreecheck','map','sessionMap','ajax','upload','treetable','svMap','pager','global_ref','chart_ref','datepiker','kindeditor'] //第三方库
+        entry: './app/entry.js'
     };
 var   buildPath = "./release";
 
@@ -88,6 +87,11 @@ module.exports = {
       test: /\.json$/,
       loader: 'json'
     }, {
+        test: /\.js$/,
+        exclude:/assets[\\\/]lib/,
+        loader: 'strict'
+      },
+       {
       test: /\.(html|tpl)$/,
       exclude:/doublelist/,     //OniUI的不能使用html-loader加载
       //把所有html里的script标签过滤掉
@@ -135,5 +139,4 @@ module.exports = {
   plugins: plugins,
   devtool: 'source-map'
 };
-
 ```

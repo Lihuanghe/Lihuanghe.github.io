@@ -217,10 +217,284 @@ webpack的实际入口是`Compiler`类的`run`方法， 在run方法里调用`co
         this.dependencyTemplates = new ArrayMap();   //保存Dependency和Template对应关系，方便生成加载此模块的代码
 ```
 
-- 重要方法
+- 程序核心处理流程注释
 
-1. addEntry
+`SingleEntryPlugin`,`MultiEntryPlugin` 两个插件中注册了对`make`事件的监听，当Compiler执行make时，触发对 `Compilation.addEntry` 方法的调用. 在addEntry方法内调用私有方法`_addModuleChain` ：
 
-2. buildModule
+```javascript
+Compilation.prototype._addModuleChain = function process(context, dependency, onModule, callback) {
+	var start = this.profile && +new Date();
 
-3. _addModuleChain
+	var errorAndCallback = this.bail ? function errorAndCallback(err) {
+		callback(err);
+	} : function errorAndCallback(err) {
+		err.dependencies = [dependency];
+		this.errors.push(err);
+		callback();
+	}.bind(this);
+
+	if(typeof dependency !== "object" || dependency === null || !dependency.constructor) {
+		throw new Error("Parameter 'dependency' must be a Dependency");
+	}
+
+    //根据依赖模块的类型获取对应的模块工厂，用于后边创建模块。
+	var moduleFactory = this.dependencyFactories.get(dependency.constructor);
+	if(!moduleFactory) {
+		throw new Error("No dependency factory available for this dependency type: " + dependency.constructor.name);
+	}
+    
+    //使用模块工厂创建模块，并将创建出来的module作为参数传给回调方法:就是下边`function(err, module)`的参数
+	moduleFactory.create(context, dependency, function(err, module) {
+		if(err) {
+			return errorAndCallback(new EntryModuleNotFoundError(err));
+		}
+
+		if(this.profile) {
+			if(!module.profile) {
+				module.profile = {};
+			}
+			var afterFactory = +new Date();
+			module.profile.factory = afterFactory - start;
+		}
+
+		var result = this.addModule(module);
+        
+        //result表示该module是否第一次创建
+		if(!result) {
+            //不是第一次创建
+			module = this.getModule(module);
+
+			onModule(module);
+
+			if(this.profile) {
+				var afterBuilding = +new Date();
+				module.profile.building = afterBuilding - afterFactory;
+			}
+
+			return callback(null, module);
+		}
+        
+        //如果module已缓存过，且不需要rebuild。result是一个Module对象，直接返回该缓存的module
+		if(result instanceof Module) {
+			if(this.profile) {
+				result.profile = module.profile;
+			}
+
+			module = result;
+
+			onModule(module);
+
+			moduleReady.call(this);
+			return;
+		}
+        
+       
+
+		onModule(module);
+        
+        //下面要对module进行build了。包括调用loader处理源文件，使用acorn生成AST，将遍历AST,遇到requirt等依赖时，创建依赖(Dependency)加入依赖数组.
+		this.buildModule(module, function(err) {
+			if(err) {
+				return errorAndCallback(err);
+			}
+
+			if(this.profile) {
+				var afterBuilding = +new Date();
+				module.profile.building = afterBuilding - afterFactory;
+			}
+            
+        //OK，这里module已经build完了，依赖也收集好了，开始处理依赖的module
+			moduleReady.call(this);
+		}.bind(this));
+
+		function moduleReady() {
+			this.processModuleDependencies(module, function(err) {
+				if(err) {
+					return callback(err);
+				}
+
+				return callback(null, module);
+			});
+		}
+	}.bind(this));
+};
+```
+
+- 递归处理依赖
+
+经过上面buildModule后，程序调用`processModuleDependencies`开始递归处理依赖的module.:
+
+``` javascript
+Compilation.prototype.addModuleDependencies = function(module, dependencies, bail, cacheGroup, recursive, callback) {
+	var _this = this;
+	var start = _this.profile && +new Date();
+
+	var factories = [];
+	for(var i = 0; i < dependencies.length; i++) {
+		var factory = _this.dependencyFactories.get(dependencies[i][0].constructor);
+		if(!factory) {
+			return callback(new Error("No module factory available for dependency type: " + dependencies[i][0].constructor.name));
+		}
+		factories[i] = [factory, dependencies[i]];
+	}
+    
+    //遍历每个Module
+	async.forEach(factories, function(item, callback) {
+    
+        //这时跟上面处理_addModuleChain方法类似
+        
+		var dependencies = item[1];
+		var criticalDependencies = dependencies.filter(function(d) {
+			return !!d.critical;
+		});
+		if(criticalDependencies.length > 0) {
+			_this.warnings.push(new CriticalDependenciesWarning(module, criticalDependencies));
+		}
+
+		var errorAndCallback = function errorAndCallback(err) {
+			err.dependencies = dependencies;
+			err.origin = module;
+			module.dependenciesErrors.push(err);
+			_this.errors.push(err);
+			if(bail) {
+				callback(err);
+			} else {
+				callback();
+			}
+		};
+		var warningAndCallback = function warningAndCallback(err) {
+			err.dependencies = dependencies;
+			err.origin = module;
+			module.dependenciesWarnings.push(err);
+			_this.warnings.push(err);
+			callback();
+		};
+
+		var factory = item[0];
+		factory.create(module.context, dependencies[0], function(err, dependentModule) {
+			function isOptional() {
+				return dependencies.filter(function(d) {
+					return !d.optional;
+				}).length === 0;
+			}
+
+			function errorOrWarningAndCallback(err) {
+				if(isOptional()) {
+					return warningAndCallback(err);
+				} else {
+					return errorAndCallback(err);
+				}
+			}
+			if(err) {
+				return errorOrWarningAndCallback(new ModuleNotFoundError(module, err));
+			}
+			if(!dependentModule) {
+				return process.nextTick(callback);
+			}
+			if(_this.profile) {
+				if(!dependentModule.profile) {
+					dependentModule.profile = {};
+				}
+				var afterFactory = +new Date();
+				dependentModule.profile.factory = afterFactory - start;
+			}
+
+			dependentModule.issuer = module.identifier();
+			var newModule = _this.addModule(dependentModule, cacheGroup);
+
+			if(!newModule) { // from cache
+				dependentModule = _this.getModule(dependentModule);
+
+				if(dependentModule.optional) {
+					dependentModule.optional = isOptional();
+				}
+
+				dependencies.forEach(function(dep) {
+					dep.module = dependentModule;
+					dependentModule.addReason(module, dep);
+				});
+
+				if(_this.profile) {
+					if(!module.profile) {
+						module.profile = {};
+					}
+					var time = +new Date() - start;
+					if(!module.profile.dependencies || time > module.profile.dependencies) {
+						module.profile.dependencies = time;
+					}
+				}
+
+				return process.nextTick(callback);
+			}
+
+			if(newModule instanceof Module) {
+				if(_this.profile) {
+					newModule.profile = dependentModule.profile;
+				}
+
+				newModule.optional = isOptional();
+				newModule.issuer = dependentModule.issuer;
+				dependentModule = newModule;
+
+				dependencies.forEach(function(dep) {
+					dep.module = dependentModule;
+					dependentModule.addReason(module, dep);
+				});
+
+				if(_this.profile) {
+					var afterBuilding = +new Date();
+					module.profile.building = afterBuilding - afterFactory;
+				}
+
+				if(recursive) {
+					return process.nextTick(_this.processModuleDependencies.bind(_this, dependentModule, callback));
+				} else {
+					return process.nextTick(callback);
+				}
+			}
+
+			dependentModule.optional = isOptional();
+
+			dependencies.forEach(function(dep) {
+				dep.module = dependentModule;
+				dependentModule.addReason(module, dep);
+			});
+
+			_this.buildModule(dependentModule, function(err) {
+				if(err) {
+					return errorOrWarningAndCallback(err);
+				}
+
+				if(_this.profile) {
+					var afterBuilding = +new Date();
+					dependentModule.profile.building = afterBuilding - afterFactory;
+				}
+
+				if(recursive) {
+					_this.processModuleDependencies(dependentModule, callback);
+				} else {
+					return callback();
+				}
+			});
+
+		});
+	}, function(err) {
+		if(err) {
+			return callback(err);
+		}
+
+		return callback();
+	});
+};
+```
+
+- 所有模块build完成，开始封装
+
+调用seal方法封装，要逐次对每个module和chunk进行整理，合并，拆分，生成hash。
+
+## 最后输出到结果文件
+
+webpack在输入结果前会先创建输出目录。
+
+
+
