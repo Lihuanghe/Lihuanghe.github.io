@@ -174,7 +174,7 @@ webpack的实际入口是`Compiler`类的`run`方法， 在run方法里调用`co
 
 ## 核心对象Compilation
 
-该对象负责组织整个编译过程，包含了每个构建环节所对应的方法，如：`addEntry` ,buildModule,processModuleDependencies,summarizeDependencies,createModuleAssets,createHash等等。
+该对象负责组织整个编译过程，包含了每个构建环节所对应的方法，如：`addEntry` ,`buildModule`,`processModuleDependencies`,`summarizeDependencies`,`createModuleAssets`,`createHash`等等。
 
 
 - 主要的成员
@@ -338,10 +338,10 @@ Compilation.prototype.addModuleDependencies = function(module, dependencies, bai
 		factories[i] = [factory, dependencies[i]];
 	}
     
-    //遍历每个Module
+    //遍历每个依赖模块
 	async.forEach(factories, function(item, callback) {
     
-        //这时跟上面处理_addModuleChain方法类似
+        //这下面跟上面处理_addModuleChain方法类似
         
 		var dependencies = item[1];
 		var criticalDependencies = dependencies.filter(function(d) {
@@ -496,5 +496,26 @@ Compilation.prototype.addModuleDependencies = function(module, dependencies, bai
 
 webpack在输入结果前会先创建输出目录。
 
+# 使用acorn生成AST，并遍历AST收集依赖
 
+webpack使用acorn解析每一个经loader处理过的source，并且成AST.
 
+# 支持多种模块化规范
+
+## AMD
+
+## CMD
+
+## import
+
+# 对loader的加载和调用
+
+# 经典插件
+
+## HtmlWebpackPlugin
+
+## ExtractTextPlugin
+
+## CommonsChunkPlugin
+
+## UglifyJsPlugin
