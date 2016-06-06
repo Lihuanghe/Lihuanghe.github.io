@@ -492,6 +492,8 @@ Compilation.prototype.addModuleDependencies = function(module, dependencies, bai
 
 调用seal方法封装，要逐次对每个module和chunk进行整理，合并，拆分，生成hash。
 
+`待补充`
+
 ## 最后输出到结果文件
 
 webpack在输入结果前会先创建输出目录。
@@ -500,22 +502,38 @@ webpack在输入结果前会先创建输出目录。
 
 webpack使用acorn解析每一个经loader处理过的source，并且成AST.
 
+`待补充`
+
 # 支持多种模块化规范
 
 ## AMD
 
+`待补充`
+
 ## CMD
+
+`待补充`
 
 ## import
 
+`待补充`
+
 # 对loader的加载和调用
+
+`待补充`
 
 # 经典插件
 
 ## HtmlWebpackPlugin
 
+`待补充`
+
 ## ExtractTextPlugin
 
+`待补充`
 ## CommonsChunkPlugin
 
+`待补充`
 ## UglifyJsPlugin
+
+`待补充`
