@@ -371,6 +371,8 @@ Compilation.prototype.addModuleDependencies = function(module, dependencies, bai
 		};
 
 		var factory = item[0];
+        
+        //创建Module
 		factory.create(module.context, dependencies[0], function(err, dependentModule) {
 			function isOptional() {
 				return dependencies.filter(function(d) {
@@ -460,6 +462,7 @@ Compilation.prototype.addModuleDependencies = function(module, dependencies, bai
 				dependentModule.addReason(module, dep);
 			});
 
+            //build模块
 			_this.buildModule(dependentModule, function(err) {
 				if(err) {
 					return errorOrWarningAndCallback(err);
@@ -469,7 +472,8 @@ Compilation.prototype.addModuleDependencies = function(module, dependencies, bai
 					var afterBuilding = +new Date();
 					dependentModule.profile.building = afterBuilding - afterFactory;
 				}
-
+    
+                //循环处理此模块的依赖
 				if(recursive) {
 					_this.processModuleDependencies(dependentModule, callback);
 				} else {
@@ -490,9 +494,21 @@ Compilation.prototype.addModuleDependencies = function(module, dependencies, bai
 
 - 所有模块build完成，开始封装
 
-调用seal方法封装，要逐次对每个module和chunk进行整理，合并，拆分，生成hash。
+调用seal方法封装，要逐次对每个module和chunk进行整理，生成编译后的源码，合并，拆分，生成hash。
+webpack会根据不同的插件，如`MinChunkSizePlugin`,`LimitChunkCountPlugin` 将不同的module整理到不同的chunk里，每个chunk最终对应一个输出文件。此时所有的module仍然保存的是编译前的
+原始文件内容。webpack需求将源代码里的`require()`调用替换成webpack模块加载代码，说白了就是生成最终编译后的代码。下面看看webpack是如何生成最终代码的。
+结果文件举例：
 
-`待补充`
+```javascript
+
+  var kidsico =  __webpack_require__(32) , closeico = __webpack_require__(33); //原始文件内容是:    var kidsico =  require('assets/img/kids.gif') , closeico = require('assets/img/close.gif');
+
+```
+
+
+## 通过Template生成结果代码
+
+
 
 ## 最后输出到结果文件
 
@@ -537,3 +553,4 @@ webpack使用acorn解析每一个经loader处理过的source，并且成AST.
 ## UglifyJsPlugin
 
 `待补充`
+
