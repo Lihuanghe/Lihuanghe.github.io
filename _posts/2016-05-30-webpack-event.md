@@ -539,7 +539,7 @@ ModuleTemplate.prototype.render = function(module, dependencyTemplates, chunk) {
 第一行`module.source()`方法即是生成该模块结果代码的方法。`source`是一个抽象方法，在Module的不同子类里会重写该方法。在子类`NormalModule`的source方法里，必须把源代码中的`require()`引入的模块代码替换成
 webpack的模块加载代码，完成此功能的代码就是这句：
 
-```	
+```javascript
     //还记得dependencyTemplates是什么吗？就是保存Dependency和Template对应关系，下面这句从获取不同的Dependency.Template实例 
     //如AMDDefineDependency.Template ，AMDRequireContextDependency.Template ，CommonJsRequireDependency.Template 
     
