@@ -496,47 +496,89 @@ Compilation.prototype.addModuleDependencies = function(module, dependencies, bai
 
 调用seal方法封装，要逐次对每个module和chunk进行整理，生成编译后的源码，合并，拆分，生成hash。
 webpack会根据不同的插件，如`MinChunkSizePlugin`,`LimitChunkCountPlugin` 将不同的module整理到不同的chunk里，每个chunk最终对应一个输出文件。此时所有的module仍然保存的是编译前的
-原始文件内容。webpack需求将源代码里的`require()`调用替换成webpack模块加载代码，说白了就是生成最终编译后的代码。下面看看webpack是如何生成最终代码的。
-结果文件举例：
-
-```javascript
-
-  var kidsico =  __webpack_require__(32) , closeico = __webpack_require__(33); //原始文件内容是:    var kidsico =  require('assets/img/kids.gif') , closeico = require('assets/img/close.gif');
-
-```
-
+原始文件内容。webpack需求将源代码里的`require()`调用替换成webpack模块加载代码，说白了就是生成最终编译后的代码。
 
 ## 通过Template生成结果代码
 
+生成结果js的调用入口，是compilation类里的createChunkAssets方法：
 
+```javascript
+
+    //如果是入口，则使用MainTemplate生成结果，否则使用ChunkTemplate.
+    if(chunk.entry) {
+        source = this.mainTemplate.render(this.hash, chunk, this.moduleTemplate, this.dependencyTemplates);
+    } else {
+        source = this.chunkTemplate.render(chunk, this.moduleTemplate, this.dependencyTemplates);
+    }
+
+```
+
+Template是用来生成结果代码的。webpack中Template有四个子类：
+
+- MainTemplate.js 用于生成项目入口文件
+
+- ChunkTemplate.js 用于生成异步加载的js代码
+
+- ModuleTemplate.js 用于生成某个模块的代码
+
+- HotUpdateChunkTemplate.js 
+
+在`MainTemplate`和`ChunkTemplate`需要根据依赖的模块，逐个调用`ModuleTemplate`的render方法。下面分析`ModuleTemplate`是如何生成每个模块的结果代码的：
+
+```javascript
+
+ModuleTemplate.prototype.render = function(module, dependencyTemplates, chunk) {
+	var moduleSource = module.source(dependencyTemplates, this.outputOptions, this.requestShortener);
+	moduleSource = this.applyPluginsWaterfall("module", moduleSource, module, chunk, dependencyTemplates);
+	moduleSource = this.applyPluginsWaterfall("render", moduleSource, module, chunk, dependencyTemplates);
+	return this.applyPluginsWaterfall("package", moduleSource, module, chunk, dependencyTemplates);
+};
+
+```
+
+第一行`module.source()`方法即是生成该模块结果代码的方法。`source`是一个抽象方法，在Module的不同子类里会重写该方法。在子类`NormalModule`的source方法里，必须把源代码中的`require()`引入的模块代码替换成
+webpack的模块加载代码，完成此功能的代码就是这句：
+
+```	
+    //还记得dependencyTemplates是什么吗？就是保存Dependency和Template对应关系，下面这句从获取不同的Dependency.Template实例 
+    //如AMDDefineDependency.Template ，AMDRequireContextDependency.Template ，CommonJsRequireDependency.Template 
+    
+	var template = dependencyTemplates.get(dep.constructor);
+    if(!template) throw new Error("No template for dependency: " + dep.constructor.name);
+    
+    //source是一个ReplaceSource,可利用dep参数的range属性定位require调用在源码中的位置，从而实现替换。
+    //range: 根据paser:acorn的文档说明，保存了AST节点在源码中的起始位置和结束位置[ start , end ]
+    template.apply(dep, source, outputOptions, requestShortener, dependencyTemplates);
+```
+
+比如最终会生成类似以下的代码：
+
+```javascript
+
+//原始文件内容是:    var kidsico =  require('assets/img/kids.gif') , closeico = require('assets/img/close.gif');
+  var kidsico =  __webpack_require__(32) , closeico = __webpack_require__(33); 
+
+```
 
 ## 最后输出到结果文件
 
-webpack在输入结果前会先创建输出目录。
+webpack会在Compiler的emitAssets方法里把compilation.assets里的结果写到输出文件里，在此前会先创建输出目录。所有当你要开发一些自定义的
+插件要输出一些结果时，把文件放入compilation.assets里即可。
 
 # 使用acorn生成AST，并遍历AST收集依赖
 
-webpack使用acorn解析每一个经loader处理过的source，并且成AST.
-
-`待补充`
-
-# 支持多种模块化规范
-
-## AMD
-
-`待补充`
-
-## CMD
-
-`待补充`
-
-## import
-
-`待补充`
+webpack使用acorn解析每一个经loader处理过的source，并且成AST，然后遍历所有节点，当遇到require调用时，会分析是AMD的还是CMD的调用，或者是`require.ensure `.
+我们不再分析AST的遍历过程了。
 
 # 对loader的加载和调用
 
-`待补充`
+webpack的loader是非常重要的概念。所有的资源(resource)都要经过loader处理，后生成source给acorn解析。
+下面就来看看loader是如何工作的。
+
+前边提到过，loader是在`NormalModule` build时调用的.
+
+```
+```
 
 # 经典插件
 
