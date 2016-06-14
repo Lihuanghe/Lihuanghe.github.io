@@ -572,27 +572,37 @@ webpack使用acorn解析每一个经loader处理过的source，并且成AST，�
 
 # 对loader的加载和调用
 
-webpack的loader是非常重要的概念。所有的资源(resource)都要经过loader处理，后生成source给acorn解析。
-下面就来看看loader是如何工作的。
-
-前边提到过，loader是在`NormalModule` build时调用的.
+webpack官网对 [loader](http://webpack.github.io/docs/loaders.html) 已经介绍的非常详细了，不再多说。你只需要记住：
 
 ```
+webpack在build模块时 (`调用doBuild方法`)，要先调用相应的loader对resource进行加工，生成一段js代码后交给acorn解析生成AST.所以不管是css文件，还是jpg文件，还是html模版，
+最终经过loader处理会变成一个module：一段js代码。
 ```
+
+比如：url-loader，根据loader配置生成一段dataURL或者使用调用loadercontext的emitFile方法向assets添加一个文件。
 
 # 经典插件
 
-## HtmlWebpackPlugin
+## html-webpack-plugin
 
-`待补充`
+在HtmlWebpackPlugin里通过 `var childCompiler = compilation.createChildCompiler(compilerName, outputOptions)`创建了childCompiler, 然后调用`childCompiler.compile`方法进行编译，
+使得HtmlWebpackPlugin也可以使用webpack的loader机制，如`html-loader`,`handlebar-loader`等等来处理template.最后从compilation对象中取出chunk和css注入到html 的`head`或者`body`里。
 
-## ExtractTextPlugin
+## extract-text-webpack-plugin
 
-`待补充`
+extract-text-webpack-plugin 被用来抽取css样式到独立的文件，方便页面引用,因此必须配合`css-loader`使用。
+`ExtractTextPlugin.extract("style-loader", "css-loader?sourceMap!cssnext-loader") ` 这样的loader配置，第一个before参数`style-loader`会被省略掉不参与loader处理，真正
+起作用的是第二个参数`css-loader?sourceMap!cssnext-loader` ,所以配置成`ExtractTextPlugin.extract("css-loader?sourceMap!cssnext-loader")`也可以。
+
+首先在资源build的时候，使用`ExtractTextPlugin`的loader将创建一个childCompiler(类似html-webpack-plugin)对css(或者sass，)文件重新进行编译，将编译结果记录在module的meta数组里。原来的位置替换成一行注释:`// removed by extract-text-webpack-plugin`
+编译完成后，在优化chunk的时候 ( `optimize-tree` 事件触发 )将每个module的meta数组取出来生成独立的css文件。
+
 ## CommonsChunkPlugin
 
-`待补充`
+这个插件用来提取公共的module到独立的chunk文件里。如果只有一个entry是没必须用这个插件 。当有多个entry，可能每个entry有一些公共依赖的module。此时`CommonsChunkPlugin`会把这些公共的module提取
+到独立的文件中。[http://webpack.github.io/docs/list-of-plugins.html#commonschunkplugin](http://webpack.github.io/docs/list-of-plugins.html#commonschunkplugin)有详细的介绍
+
 ## UglifyJsPlugin
 
-`待补充`
+在`optimize-chunk-assets`时，将每个chunk逐一uglify一把，然后再输出结果文件。
 
