@@ -43,6 +43,8 @@ var plugins = [
      jQuery: "jquery",
     "window.jQuery": "jquery",
     chart:'chart_ref',
+    
+    //用webpack加载后，datepicker没有把WdatePicker对象挂在window上，需要手动挂一次，可以在entry入口里调用一下： window.WdatePicker = require('exports?WdatePicker!datepiker');
     WdatePicker:'datepiker'
   }),
   //copy 插件
