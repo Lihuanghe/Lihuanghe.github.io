@@ -9,7 +9,7 @@ theme :
 ---
 {% include JB/setup %}
 
-我今天知乎上一篇 "如何评价王垠最新文章《关于离开美国的决定》？"  ,有感而发，(写一篇评论)[https://www.zhihu.com/question/47614672/answer/106886914?from=profile_answer_card]，转发到这里。
+我今天知乎上一篇 "如何评价王垠最新文章《关于离开美国的决定》？"  ,有感而发，[写一篇评论](https://www.zhihu.com/question/47614672/answer/106886914?from=profile_answer_card)，转发到这里。
 
 
 看完通篇，觉得虽然有了 **离开美国的决定**  ，但尚未做好 **离开美国的准备** ，或者说 **未作好回国的准备** 。
