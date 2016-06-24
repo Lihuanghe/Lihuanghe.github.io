@@ -72,7 +72,7 @@ module.exports = {
     loaders: [{
       test: /\.css$/,
       loader: ExtractTextPlugin.extract(
-        "style-loader", "css-loader?sourceMap!cssnext-loader")
+        "style-loader", "css-loader?sourceMap")
     }, {
       test: /\.(jpg|png|gif)$/,
       loader: 'url-loader?limit=8192&name=images/[name].[hash:8].[ext]'
