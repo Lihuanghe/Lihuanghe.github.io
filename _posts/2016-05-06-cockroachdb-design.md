@@ -1721,3 +1721,7 @@ coordinator and distributed sender used by the DB client gateway.
 [11]: https://godoc.org/github.com/cockroachdb/cockroach/storage
 [12]: https://github.com/cockroachdb/cockroach/tree/master/storage
 
+下面是一些F1的资料
+
+[13]: http://www.leafonsword.org/google-f1/
+
