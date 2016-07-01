@@ -1708,20 +1708,20 @@ coordinator and distributed sender used by the DB client gateway.
 
 ![Client Architecture](/resource/doc/client-architecture.png?raw=true)
 
-[0]: http://rocksdb.org/
-[1]: https://github.com/google/leveldb
-[2]: https://ramcloud.stanford.edu/wiki/download/attachments/11370504/raft.pdf
-[3]: http://research.google.com/archive/spanner.html
-[4]: http://research.google.com/pubs/pub36971.html
-[5]: https://github.com/cockroachdb/cockroach/tree/master/sql
-[7]: https://godoc.org/github.com/cockroachdb/cockroach/kv
-[8]: https://github.com/cockroachdb/cockroach/tree/master/kv
-[9]: https://godoc.org/github.com/cockroachdb/cockroach/server
-[10]: https://github.com/cockroachdb/cockroach/tree/master/server
-[11]: https://godoc.org/github.com/cockroachdb/cockroach/storage
-[12]: https://github.com/cockroachdb/cockroach/tree/master/storage
+[0] [http://rocksdb.org/ ](http://rocksdb.org/)
+[1] [https://github.com/google/leveldb]()
+[2][ https://ramcloud.stanford.edu/wiki/download/attachments/11370504/raft.pdf]()
+[3] [http://research.google.com/archive/spanner.html]()
+[4] [http://research.google.com/pubs/pub36971.html]()
+[5] [https://github.com/cockroachdb/cockroach/tree/master/sql]()
+[7] [https://godoc.org/github.com/cockroachdb/cockroach/kv]()
+[8] [https://github.com/cockroachdb/cockroach/tree/master/kv]()
+[9] [https://godoc.org/github.com/cockroachdb/cockroach/server]()
+[10] [https://github.com/cockroachdb/cockroach/tree/master/server]()
+[11] [https://godoc.org/github.com/cockroachdb/cockroach/storage]()
+[12] [https://github.com/cockroachdb/cockroach/tree/master/storage]()
 
 下面是一些F1的资料
 
-[13]: http://www.leafonsword.org/google-f1/
+[13] http://www.leafonsword.org/google-f1/
 
