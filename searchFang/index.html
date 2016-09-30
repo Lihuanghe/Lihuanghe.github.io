@@ -25,9 +25,13 @@
 </div>
 <hr/>
 <br/>
+<div style="font-size:10px;color:red">
+请使用浏览器打开网页，不要使用微信打开
+</div>
+<br/>
 <label>请输入手机号后四位查询：</label><br/>
 <input id="input" type='text' />
-<button id='search' >查询</button><br/>
+<br/>
 <br/>
 <hr/>
 <label>查询结果：</label><br/>
@@ -41,7 +45,8 @@ Zepto(function($){
   var csvData ;
   $.get('./data.csv',function(data){
     csvData = Papa.parse(data);
-    
+  
+    $('#input').after("<button id='search'>查询</button>")
     $('#search').on('click',function(){
         var txt = $('#input').val()
         
