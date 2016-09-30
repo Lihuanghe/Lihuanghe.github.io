@@ -17,6 +17,7 @@
 </head>
 <body>
 <div>
+我连着去国土局几次都查不到信息，政府的网站又老是挂。
 工作之余给大家提供便利，我会尽可能即时更新数据。
 数据来源：<a href="http://218.29.138.79" target="_blank">http://218.29.138.79</a>
 </div>
@@ -25,13 +26,15 @@
 </div>
 <hr/>
 <br/>
+<div style="font-size:15px" >
+数据更新日期：2016-09-28
+</div>
 <div style="font-size:10px;color:red">
 请使用浏览器打开网页，不要使用微信打开
 </div>
 <br/>
-<label>请输入手机号后四位查询：</label><br/>
-<input id="input" type='text' />
-<br/>
+<label>请输入至少2位电话号 或者 房屋坐落的2个汉字查询：</label><br/>
+<input id="input" type='text' style='margin:35px 15px ;border:1px solid #000' />
 <br/>
 <hr/>
 <label>查询结果：</label><br/>
@@ -50,8 +53,8 @@ Zepto(function($){
     $('#search').on('click',function(){
         var txt = $('#input').val()
         
-        if(txt === '' || txt.length !== 4) {
-            $('#result').html('请输入手机号后四位')
+        if(txt === '' || txt.length <= 1) {
+            $('#result').html('请输入查询信息')
             return false
         }
         
@@ -59,8 +62,8 @@ Zepto(function($){
         $.each(csvData.data, function(index, item){ 
             if(item.length === 4 ){
                 var phone = item[3]
-                
-                if(phone.indexOf(txt) !== -1){
+                var part = item[2]
+                if(phone.indexOf(txt) !== -1 || part.indexOf(txt) !== -1){
                     allresult.push('<div>'+item.join(",")+'</div>')
                 }
             }else{
