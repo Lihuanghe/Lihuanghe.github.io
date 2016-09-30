@@ -51,7 +51,7 @@ Zepto(function($){
   
     $('#input').after("<button id='search'>查询</button>")
     $('#search').on('click',function(){
-        var txt = $('#input').val()
+        var txt = $.trim($('#input').val())
         
         if(txt === '' || txt.length <= 1) {
             $('#result').html('请输入查询信息')
