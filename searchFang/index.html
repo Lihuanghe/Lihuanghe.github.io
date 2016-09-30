@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<!--[if lt IE 7 ]><html class="ie6"><![endif]-->
+<!--[if IE 7 ]><html class="ie7"><![endif]-->
+<!--[if IE 8 ]><html class="ie8"><![endif]-->
+<!--[if IE 9 ]><html class="ie9"><![endif]-->
+<!--[if (gt IE 9)|!(IE)]><!-->
+<html>
+<!--<![endif]-->
+<!--STATUS OK -->	
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta name="renderer" content="webkit" />
+<meta http-equiv="X-UA-Compatible" content="IE=9,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>金水区国土局房产档案到档查询</title>
+</head>
+<body>
+<div>
+工作之余给大家提供便利，我会尽可能即时更新数据。
+数据来源：<a href="http://218.29.138.79" target="_blank">http://218.29.138.79</a>
+</div>
+<div>
+有什么问题可以咨询QQ：18852780
+</div>
+<hr/>
+<br/>
+<label>请输入手机号后四位查询：</label><br/>
+<input id="input" type='text' />
+<button id='search' >查询</button><br/>
+<br/>
+<hr/>
+<label>查询结果：</label><br/>
+<div id="result" style="color:red"></div>
+<script src="http://zeptojs.com/zepto.min.js"></script>
+<script src="./papaparse.min.js"></script>
+<script type="text/javascript">
+// 当页面ready的时候，执行回调:
+Zepto(function($){
+  
+  var csvData ;
+  $.get('./data.csv',function(data){
+    csvData = Papa.parse(data);
+    
+    $('#search').on('click',function(){
+        var txt = $('#input').val()
+        
+        if(txt === '' || txt.length !== 4) {
+            $('#result').html('请输入手机号后四位')
+            return false
+        }
+        
+        var allresult = []
+        $.each(csvData.data, function(index, item){ 
+            if(item.length === 4 ){
+                var phone = item[3]
+                
+                if(phone.indexOf(txt) !== -1){
+                    allresult.push('<div>'+item.join(",")+'</div>')
+                }
+            }else{
+            
+            }
+        })
+        
+        if(allresult.length ===0){
+            $('#result').html('查不到数据')
+        }else{
+            $('#result').html(allresult.join(''))
+        }
+    })
+  });
+})
+
+</script>
+</body>
+</html>
