@@ -26,11 +26,9 @@ theme :
 
 3. ss(shadowsock)是之前很有名的翻墙工具，可以将流量加密后发送，但十X大后，ss流量已经被识别，大量ss服务IP被封挂掉了。但我们正好可以利用其加密流量的功能，借助![image]( https://user-images.githubusercontent.com/7598107/33017437-49b81630-ce2d-11e7-9688-a76f476b7aa1.png) 的通道让ss重新复活。
 
-4.  由于ss本身不支持后置代理，无法直接将加密后的流量发送给沙盒里的![image]( https://user-images.githubusercontent.com/7598107/33017437-49b81630-ce2d-11e7-9688-a76f476b7aa1.png) ，因此需要另一个工具帮助：SocksCap64
+4.  ss本身支持前置代理，可以将加密后的流量发送给沙盒里的![image]( https://user-images.githubusercontent.com/7598107/33017437-49b81630-ce2d-11e7-9688-a76f476b7aa1.png) 。
 
-SocksCap64可以将任意软件的网络流量都截获并转发给代理服务器，配合ss正好可达到我们想要的目的。
+前置代理配置如下：
 
-效果图如下：
-
-![image](https://user-images.githubusercontent.com/7598107/33072258-b31032b2-cef9-11e7-8369-31f97d2ea4c0.png)
+![image](https://user-images.githubusercontent.com/7598107/36081683-244d42c0-0fdd-11e8-9eca-1de43711755d.png)
 
